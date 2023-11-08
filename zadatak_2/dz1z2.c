@@ -110,7 +110,7 @@ Result *parallel_implementation(char **argv, int number_of_threads)
                     {
                         task_start = start + current_chunk * chunk_size;
                         task_end =
-                            (current_chunk == number_of_threads - 1 ? start + number_of_iterations : task_start + chunk_size);
+                            (task_start + chunk_size < start + number_of_iterations ? task_start + chunk_size : start + number_of_iterations);
                         for (i = task_start; i < task_end; i++)
                         {
 
