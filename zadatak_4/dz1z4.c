@@ -502,9 +502,8 @@ int are_results_equal(Result *sequential_result, Result *parallel_result)
     {
         for (int j = 0; j < n; j++)
         {
-            if ((r1[i * n + j] != (r2[i * n + j] - ACCURACY)) &&
-                (r1[i * n + j] != (r2[i * n + j])) &&
-                (r1[i * n + j] != (r2[i * n + j] + ACCURACY)))
+            if ((r1[i * n + j] < (r2[i * n + j] - ACCURACY)) ||
+                (r1[i * n + j] > (r2[i * n + j] + ACCURACY)))
                 return 0;
         }
     }
