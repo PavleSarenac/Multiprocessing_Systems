@@ -1,0 +1,157 @@
+Sequential implementation execution time: 0.001752s
+Parallel implementation (one thread) execution time: 0.001892s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.000929s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.000517s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.000655s
+Test PASSED
+
+Sequential implementation execution time: 0.019810s
+Parallel implementation (one thread) execution time: 0.022293s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.019171s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.012504s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.010541s
+Test PASSED
+
+Sequential implementation execution time: 2.468872s
+Parallel implementation (one thread) execution time: 2.440273s
+Test PASSED
+Parallel implementation (two threads) execution time: 1.998612s
+Test PASSED
+Parallel implementation (four threads) execution time: 1.013140s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.641103s
+Test PASSED
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Sequential implementation execution time: 0.001499s
+Parallel implementation (one thread) execution time: 0.001901s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.001177s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.000509s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.000672s
+Test PASSED
+
+Sequential implementation execution time: 0.024599s
+Parallel implementation (one thread) execution time: 0.023786s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.019463s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.012342s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.010590s
+Test PASSED
+
+Sequential implementation execution time: 2.009871s
+Parallel implementation (one thread) execution time: 3.447060s
+Test PASSED
+Parallel implementation (two threads) execution time: 2.033124s
+Test PASSED
+Parallel implementation (four threads) execution time: 1.011178s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.637826s
+Test PASSED
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Sequential implementation execution time: 0.001564s
+Parallel implementation (one thread) execution time: 0.001832s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.001183s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.000530s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.000669s
+Test PASSED
+
+Sequential implementation execution time: 0.046160s
+Parallel implementation (one thread) execution time: 0.022388s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.020046s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.012573s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.010179s
+Test PASSED
+
+Sequential implementation execution time: 5.511401s
+Parallel implementation (one thread) execution time: 2.591031s
+Test PASSED
+Parallel implementation (two threads) execution time: 2.125789s
+Test PASSED
+Parallel implementation (four threads) execution time: 1.056280s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.641418s
+Test PASSED
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Sequential implementation execution time: 0.003451s
+Parallel implementation (one thread) execution time: 0.001574s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.000539s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.000527s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.000690s
+Test PASSED
+
+Sequential implementation execution time: 0.021324s
+Parallel implementation (one thread) execution time: 0.018486s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.019038s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.012290s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.010604s
+Test PASSED
+
+Sequential implementation execution time: 2.497016s
+Parallel implementation (one thread) execution time: 2.054993s
+Test PASSED
+Parallel implementation (two threads) execution time: 2.029945s
+Test PASSED
+Parallel implementation (four threads) execution time: 1.011797s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.635830s
+Test PASSED
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Sequential implementation execution time: 0.001627s
+Parallel implementation (one thread) execution time: 0.001847s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.000929s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.000521s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.000651s
+Test PASSED
+
+Sequential implementation execution time: 0.017753s
+Parallel implementation (one thread) execution time: 0.021564s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.019858s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.012559s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.010087s
+Test PASSED
+
+Sequential implementation execution time: 1.996539s
+Parallel implementation (one thread) execution time: 3.217904s
+Test PASSED
+Parallel implementation (two threads) execution time: 2.029980s
+Test PASSED
+Parallel implementation (four threads) execution time: 1.014610s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.636302s
+Test PASSED
