@@ -1,0 +1,227 @@
+Running ./nbody with 30 particles, 100 iterations, and saving to simulation_1 folder
+Sequential implementation execution time: 0.005960s
+Parallel implementation (one thread) execution time: 0.003390s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.035880s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.067917s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.038468s
+Test PASSED
+
+Running ./nbody with 30 particles, 1000 iterations, and saving to simulation_2 folder
+Sequential implementation execution time: 0.034099s
+Parallel implementation (one thread) execution time: 0.035643s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.044863s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.047695s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.049658s
+Test PASSED
+
+Running ./nbody with 3000 particles, 100 iterations, and saving to simulation_3 folder
+Sequential implementation execution time: 2.694633s
+Parallel implementation (one thread) execution time: 2.355643s
+Test PASSED
+Parallel implementation (two threads) execution time: 1.318132s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.818368s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.562382s
+Test PASSED
+
+Running ./nbody with 3000 particles, 1000 iterations, and saving to simulation_4 folder
+Sequential implementation execution time: 24.253586s
+Parallel implementation (one thread) execution time: 24.376585s
+Test PASSED
+Parallel implementation (two threads) execution time: 13.345516s
+Test PASSED
+Parallel implementation (four threads) execution time: 8.950888s
+Test PASSED
+Parallel implementation (eight threads) execution time: 6.886291s
+Test PASSED
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Running ./nbody with 30 particles, 100 iterations, and saving to simulation_1 folder
+Sequential implementation execution time: 0.006205s
+Parallel implementation (one thread) execution time: 0.003266s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.051796s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.013783s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.038922s
+Test PASSED
+
+Running ./nbody with 30 particles, 1000 iterations, and saving to simulation_2 folder
+Sequential implementation execution time: 0.045955s
+Parallel implementation (one thread) execution time: 0.035847s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.058755s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.040388s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.051993s
+Test PASSED
+
+Running ./nbody with 3000 particles, 100 iterations, and saving to simulation_3 folder
+Sequential implementation execution time: 2.333136s
+Parallel implementation (one thread) execution time: 2.298942s
+Test PASSED
+Parallel implementation (two threads) execution time: 1.311068s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.796541s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.558376s
+Test PASSED
+
+Running ./nbody with 3000 particles, 1000 iterations, and saving to simulation_4 folder
+Sequential implementation execution time: 23.596527s
+Parallel implementation (one thread) execution time: 23.399108s
+Test PASSED
+Parallel implementation (two threads) execution time: 13.305473s
+Test PASSED
+Parallel implementation (four threads) execution time: 8.967666s
+Test PASSED
+Parallel implementation (eight threads) execution time: 6.967934s
+Test PASSED
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Running ./nbody with 30 particles, 100 iterations, and saving to simulation_1 folder
+Sequential implementation execution time: 0.007083s
+Parallel implementation (one thread) execution time: 0.038505s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.091834s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.023250s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.030348s
+Test PASSED
+
+Running ./nbody with 30 particles, 1000 iterations, and saving to simulation_2 folder
+Sequential implementation execution time: 0.052070s
+Parallel implementation (one thread) execution time: 0.040764s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.054073s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.045056s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.049303s
+Test PASSED
+
+Running ./nbody with 3000 particles, 100 iterations, and saving to simulation_3 folder
+Sequential implementation execution time: 2.326648s
+Parallel implementation (one thread) execution time: 2.484357s
+Test PASSED
+Parallel implementation (two threads) execution time: 1.312297s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.802244s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.559059s
+Test PASSED
+
+Running ./nbody with 3000 particles, 1000 iterations, and saving to simulation_4 folder
+Sequential implementation execution time: 23.605803s
+Parallel implementation (one thread) execution time: 24.333953s
+Test PASSED
+Parallel implementation (two threads) execution time: 13.640829s
+Test PASSED
+Parallel implementation (four threads) execution time: 10.264830s
+Test PASSED
+Parallel implementation (eight threads) execution time: 7.074924s
+Test PASSED
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Running ./nbody with 30 particles, 100 iterations, and saving to simulation_1 folder
+Sequential implementation execution time: 0.006832s
+Parallel implementation (one thread) execution time: 0.051228s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.015440s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.008612s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.030268s
+Test PASSED
+
+Running ./nbody with 30 particles, 1000 iterations, and saving to simulation_2 folder
+Sequential implementation execution time: 0.036122s
+Parallel implementation (one thread) execution time: 0.060903s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.047678s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.042838s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.060071s
+Test PASSED
+
+Running ./nbody with 3000 particles, 100 iterations, and saving to simulation_3 folder
+Sequential implementation execution time: 2.352403s
+Parallel implementation (one thread) execution time: 2.332203s
+Test PASSED
+Parallel implementation (two threads) execution time: 1.324910s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.801151s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.561938s
+Test PASSED
+
+Running ./nbody with 3000 particles, 1000 iterations, and saving to simulation_4 folder
+Sequential implementation execution time: 23.537824s
+Parallel implementation (one thread) execution time: 23.491343s
+Test PASSED
+Parallel implementation (two threads) execution time: 13.521567s
+Test PASSED
+Parallel implementation (four threads) execution time: 9.050098s
+Test PASSED
+Parallel implementation (eight threads) execution time: 6.948232s
+Test PASSED
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Running ./nbody with 30 particles, 100 iterations, and saving to simulation_1 folder
+Sequential implementation execution time: 0.007371s
+Parallel implementation (one thread) execution time: 0.026530s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.052361s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.008248s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.031535s
+Test PASSED
+
+Running ./nbody with 30 particles, 1000 iterations, and saving to simulation_2 folder
+Sequential implementation execution time: 0.056864s
+Parallel implementation (one thread) execution time: 0.037067s
+Test PASSED
+Parallel implementation (two threads) execution time: 0.072282s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.037666s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.084320s
+Test PASSED
+
+Running ./nbody with 3000 particles, 100 iterations, and saving to simulation_3 folder
+Sequential implementation execution time: 2.302362s
+Parallel implementation (one thread) execution time: 2.280582s
+Test PASSED
+Parallel implementation (two threads) execution time: 1.305663s
+Test PASSED
+Parallel implementation (four threads) execution time: 0.924291s
+Test PASSED
+Parallel implementation (eight threads) execution time: 0.558496s
+Test PASSED
+
+Running ./nbody with 3000 particles, 1000 iterations, and saving to simulation_4 folder
+Sequential implementation execution time: 23.287214s
+Parallel implementation (one thread) execution time: 22.977929s
+Test PASSED
+Parallel implementation (two threads) execution time: 13.315645s
+Test PASSED
+Parallel implementation (four threads) execution time: 9.004754s
+Test PASSED
+Parallel implementation (eight threads) execution time: 6.938214s
+Test PASSED

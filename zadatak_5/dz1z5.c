@@ -5,7 +5,7 @@
 #include <omp.h>
 
 #define SOFTENING 1e-9f
-#define ACCURACY 0.01
+#define ACCURACY 0.01f
 
 typedef struct
 {
@@ -19,7 +19,7 @@ typedef struct Result
     Body *all_bodies;
 } Result;
 
-void randomizeBodies_sequential(float *data, int n)
+void randomizeBodies(float *data, int n)
 {
     for (int i = 0; i < n; i++)
     {
@@ -86,7 +86,7 @@ Result *sequential_implementation(char **argv, float *initial_buf)
     Body *p = (Body *)buf;
 
     double start_time = omp_get_wtime();
-    randomizeBodies_sequential(fakeBuf, 6 * nBodies);
+    randomizeBodies(fakeBuf, 6 * nBodies);
 
     for (int iter = 0; iter < nIters; iter++)
     {
@@ -116,16 +116,9 @@ Result *sequential_implementation(char **argv, float *initial_buf)
     return result;
 }
 
-void randomizeBodies_parallel(float *data, int n, int number_of_threads)
+void bodyForce_parallel(Body *p, float dt, int n, int number_of_threads)
 {
-    for (int i = 0; i < n; i++)
-    {
-        data[i] = 2.0f * (rand() / (float)RAND_MAX) - 1.0f;
-    }
-}
-
-void bodyForce_parallel(Body *p, float dt, int n)
-{
+#pragma omp parallel for default(none) shared(p, dt, n) num_threads(number_of_threads)
     for (int i = 0; i < n; i++)
     {
         float Fx = 0.0f;
@@ -137,6 +130,7 @@ void bodyForce_parallel(Body *p, float dt, int n)
             float dx = p[j].x - p[i].x;
             float dy = p[j].y - p[i].y;
             float dz = p[j].z - p[i].z;
+
             float distSqr = dx * dx + dy * dy + dz * dz + SOFTENING;
             float invDist = 1.0f / sqrtf(distSqr);
             float invDist3 = invDist * invDist * invDist;
@@ -152,18 +146,16 @@ void bodyForce_parallel(Body *p, float dt, int n)
     }
 }
 
-void saveToCSV_parallel(Body *p, int n, int iter, const char *folder)
+void saveToCSV_parallel(Body *p, int n, const char *folder, int iter)
 {
     char filename[50];
     sprintf(filename, "%s/iteration_%d.csv", folder, iter);
     FILE *file = fopen(filename, "w");
-
     fprintf(file, "x,y,z,vx,vy,vz\n");
     for (int i = 0; i < n; i++)
     {
         fprintf(file, "%f,%f,%f,%f,%f,%f\n", p[i].x, p[i].y, p[i].z, p[i].vx, p[i].vy, p[i].vz);
     }
-
     fclose(file);
 }
 
@@ -182,15 +174,16 @@ Result *parallel_implementation(char **argv, int number_of_threads, float *initi
     float *buf = initial_buf;
     Body *p = (Body *)buf;
 
+    int iter = 0;
+    FILE *file;
+
     double start_time = omp_get_wtime();
-    randomizeBodies_parallel(fakeBuf, 6 * nBodies, number_of_threads);
-
-    for (int iter = 0; iter < nIters; iter++)
+    randomizeBodies(fakeBuf, 6 * nBodies);
+    for (iter = 0; iter < nIters; iter++)
     {
+        bodyForce_parallel(p, dt, nBodies, number_of_threads);
 
-        bodyForce_parallel(p, dt, nBodies);
-
-        saveToCSV_parallel(p, nBodies, iter, folder);
+        saveToCSV_parallel(p, nBodies, folder, iter);
 
         for (int i = 0; i < nBodies; i++)
         {
@@ -199,6 +192,7 @@ Result *parallel_implementation(char **argv, int number_of_threads, float *initi
             p[i].z += p[i].vz * dt;
         }
     }
+
     double end_time = omp_get_wtime();
     double execution_time = end_time - start_time;
 
@@ -226,7 +220,9 @@ int are_results_equal(Result *sequential_result, Result *parallel_result, int n_
             (seq[i].vx < (par[i].vx - ACCURACY)) || (seq[i].vx > (par[i].vx + ACCURACY)) ||
             (seq[i].vy < (par[i].vy - ACCURACY)) || (seq[i].vy > (par[i].vy + ACCURACY)) ||
             (seq[i].vz < (par[i].vz - ACCURACY)) || (seq[i].vz > (par[i].vz + ACCURACY)))
+        {
             return 0;
+        }
     }
     return 1;
 }
@@ -236,33 +232,43 @@ int main(int argc, char **argv)
     int nBodies = atoi(argv[1]);
     int bytes = nBodies * sizeof(Body);
     float *buf = (float *)malloc(bytes);
-    randomizeBodies_sequential(buf, 6 * nBodies);
+    randomizeBodies(buf, 6 * nBodies);
+
+    float **copies = (float **)malloc(4 * sizeof(float *));
+    for (int i = 0; i < 4; i++)
+    {
+        copies[i] = (float *)malloc(bytes);
+        for (int j = 0; j < bytes / sizeof(float); j++)
+        {
+            copies[i][j] = buf[j];
+        }
+    }
 
     Result *sequential_result = sequential_implementation(argv, buf);
     printf("Sequential implementation execution time: %fs\n", sequential_result->execution_time);
 
-    Result *parallel_result_one_thread = parallel_implementation(argv, 1, buf);
+    Result *parallel_result_one_thread = parallel_implementation(argv, 1, copies[0]);
     printf("Parallel implementation (one thread) execution time: %fs\n", parallel_result_one_thread->execution_time);
     if (are_results_equal(sequential_result, parallel_result_one_thread, nBodies))
         printf("Test PASSED\n");
     else
         printf("Test FAILED\n");
 
-    Result *parallel_result_two_threads = parallel_implementation(argv, 2, buf);
+    Result *parallel_result_two_threads = parallel_implementation(argv, 2, copies[1]);
     printf("Parallel implementation (two threads) execution time: %fs\n", parallel_result_two_threads->execution_time);
     if (are_results_equal(sequential_result, parallel_result_two_threads, nBodies))
         printf("Test PASSED\n");
     else
         printf("Test FAILED\n");
 
-    Result *parallel_result_four_threads = parallel_implementation(argv, 4, buf);
+    Result *parallel_result_four_threads = parallel_implementation(argv, 4, copies[2]);
     printf("Parallel implementation (four threads) execution time: %fs\n", parallel_result_four_threads->execution_time);
     if (are_results_equal(sequential_result, parallel_result_four_threads, nBodies))
         printf("Test PASSED\n");
     else
         printf("Test FAILED\n");
 
-    Result *parallel_result_eight_threads = parallel_implementation(argv, 8, buf);
+    Result *parallel_result_eight_threads = parallel_implementation(argv, 8, copies[3]);
     printf("Parallel implementation (eight threads) execution time: %fs\n", parallel_result_eight_threads->execution_time);
     if (are_results_equal(sequential_result, parallel_result_eight_threads, nBodies))
         printf("Test PASSED\n\n");
@@ -270,6 +276,11 @@ int main(int argc, char **argv)
         printf("Test FAILED\n\n");
 
     free(buf);
+    for (int i = 0; i < 4; i++)
+    {
+        free(copies[i]);
+    }
+    free(copies);
 
     free(sequential_result);
     free(parallel_result_one_thread);
