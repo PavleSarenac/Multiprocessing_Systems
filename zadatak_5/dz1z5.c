@@ -55,7 +55,7 @@ void bodyForce_sequential(Body *p, float dt, int n)
     }
 }
 
-void saveToCSV_sequential(Body *p, int n, int iter, const char *folder)
+void saveToCSV(Body *p, int n, int iter, const char *folder)
 {
     char filename[50];
     sprintf(filename, "%s/iteration_%d.csv", folder, iter);
@@ -92,7 +92,7 @@ Result *sequential_implementation(char **argv, float *initial_buf)
     {
         bodyForce_sequential(p, dt, nBodies);
 
-        saveToCSV_sequential(p, nBodies, iter, folder);
+        saveToCSV(p, nBodies, iter, folder);
 
         for (int i = 0; i < nBodies; i++)
         {
@@ -146,19 +146,6 @@ void bodyForce_parallel(Body *p, float dt, int n, int number_of_threads)
     }
 }
 
-void saveToCSV_parallel(Body *p, int n, const char *folder, int iter)
-{
-    char filename[50];
-    sprintf(filename, "%s/iteration_%d.csv", folder, iter);
-    FILE *file = fopen(filename, "w");
-    fprintf(file, "x,y,z,vx,vy,vz\n");
-    for (int i = 0; i < n; i++)
-    {
-        fprintf(file, "%f,%f,%f,%f,%f,%f\n", p[i].x, p[i].y, p[i].z, p[i].vx, p[i].vy, p[i].vz);
-    }
-    fclose(file);
-}
-
 Result *parallel_implementation(char **argv, int number_of_threads, float *initial_buf)
 {
     int nBodies = atoi(argv[1]);
@@ -183,7 +170,7 @@ Result *parallel_implementation(char **argv, int number_of_threads, float *initi
     {
         bodyForce_parallel(p, dt, nBodies, number_of_threads);
 
-        saveToCSV_parallel(p, nBodies, folder, iter);
+        saveToCSV(p, nBodies, iter, folder);
 
         for (int i = 0; i < nBodies; i++)
         {
