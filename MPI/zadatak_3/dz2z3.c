@@ -4,7 +4,6 @@
 #include <sys/stat.h>
 #include <mpi.h>
 #include <string.h>
-#include <sys/time.h>
 
 #define SOFTENING 1e-9f
 #define MASTER 0
@@ -102,8 +101,7 @@ void saveToCSV(Body *p, int n, int iter, const char *folder)
 
 void sequentialImplementation(int argc, char **argv, float *initialBuf, Result *sequentialResult)
 {
-    struct timeval startTime, endTime;
-    gettimeofday(&startTime, NULL);
+    double startTime = MPI_Wtime();
 
     int nBodies = atoi(argv[1]);
     int nIters = atoi(argv[2]);
@@ -138,9 +136,8 @@ void sequentialImplementation(int argc, char **argv, float *initialBuf, Result *
 
     free(fakeBuf);
 
-    gettimeofday(&endTime, NULL);
-    double executionTime = (endTime.tv_sec - startTime.tv_sec) +
-                           (endTime.tv_usec - startTime.tv_usec) / 1e6;
+    double endTime = MPI_Wtime();
+    double executionTime = endTime - startTime;
 
     sequentialResult->bodies = p;
     sequentialResult->executionTime = executionTime;
@@ -148,8 +145,7 @@ void sequentialImplementation(int argc, char **argv, float *initialBuf, Result *
 
 void parallelImplementation(int argc, char **argv, float *initialBuf, Result *parallelResult)
 {
-    struct timeval startTime, endTime;
-    gettimeofday(&startTime, NULL);
+    double startTime = MPI_Wtime();
 
     int nBodies, nIters;
     const char *folder;
@@ -175,16 +171,13 @@ void parallelImplementation(int argc, char **argv, float *initialBuf, Result *pa
     float *buf = (float *)malloc(bytes);
     memcpy(buf, initialBuf, bytes);
     float *fakeBuf = (float *)malloc(bytes);
-    float *recvBuf;
+    float *recvBuf = (float *)malloc(bytes);
     Body *p = (Body *)buf;
 
     if (processRank == MASTER)
     {
         randomizeBodies(fakeBuf, 6 * nBodies);
-        recvBuf = (float *)malloc(bytes);
     }
-
-    MPI_Bcast(fakeBuf, nBodies * 6, MPI_FLOAT, MASTER, MPI_COMM_WORLD);
 
     int chunkSize = (nBodies + communicatorSize - 1) / communicatorSize;
     int start = processRank * chunkSize;
@@ -209,26 +202,21 @@ void parallelImplementation(int argc, char **argv, float *initialBuf, Result *pa
     {
         bodyForceParallel(p, dt, nBodies, start, end);
 
-        MPI_Gatherv(buf + start * 6, (end - start) * 6, MPI_FLOAT,
-                    recvBuf, recvCounts, displacements, MPI_FLOAT, MASTER, MPI_COMM_WORLD);
+        MPI_Allgatherv(buf + start * 6, (end - start) * 6, MPI_FLOAT,
+                       recvBuf, recvCounts, displacements, MPI_FLOAT, MPI_COMM_WORLD);
+
+        memcpy(buf, recvBuf, nBodies * 6 * sizeof(float));
 
         if (processRank == MASTER)
         {
-            memcpy(buf, recvBuf, nBodies * 6 * sizeof(float));
-
             saveToCSV(p, nBodies, iter, folder);
-
-            for (int i = 0; i < nBodies; i++)
-            {
-                p[i].x += p[i].vx * dt;
-                p[i].y += p[i].vy * dt;
-                p[i].z += p[i].vz * dt;
-            }
         }
 
-        if (iter < nIters)
+        for (int i = 0; i < nBodies; i++)
         {
-            MPI_Bcast(buf, nBodies * 6, MPI_FLOAT, MASTER, MPI_COMM_WORLD);
+            p[i].x += p[i].vx * dt;
+            p[i].y += p[i].vy * dt;
+            p[i].z += p[i].vz * dt;
         }
     }
 
@@ -237,9 +225,8 @@ void parallelImplementation(int argc, char **argv, float *initialBuf, Result *pa
     {
         free(recvBuf);
 
-        gettimeofday(&endTime, NULL);
-        double executionTime = (endTime.tv_sec - startTime.tv_sec) +
-                               (endTime.tv_usec - startTime.tv_usec) / 1e6;
+        double endTime = MPI_Wtime();
+        double executionTime = endTime - startTime;
 
         parallelResult->bodies = p;
         parallelResult->executionTime = executionTime;
@@ -297,6 +284,8 @@ int main(int argc, char **argv)
         sequentialImplementation(argc, argv, initialBuf, sequentialResult);
         printf("Sequential implementation execution time: %fs\n", sequentialResult->executionTime);
     }
+
+    MPI_Barrier(MPI_COMM_WORLD);
 
     parallelImplementation(argc, argv, initialBuf, parallelResult);
     if (processRank == MASTER)
