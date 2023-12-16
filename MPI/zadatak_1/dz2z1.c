@@ -3,6 +3,8 @@
 #include <mpi.h>
 
 #define MASTER 0
+#define N 8
+#define TOO_MANY_PROCESSES 1
 
 void divisor_count_and_sum(unsigned int n, unsigned int *pcount,
                            unsigned int *psum)
@@ -51,10 +53,14 @@ int main(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &communicator_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &process_rank);
 
+    if (communicator_size > N)
+    {
+        MPI_Abort(MPI_COMM_WORLD, TOO_MANY_PROCESSES);
+    }
+
     if (process_rank == MASTER)
     {
-        printf("Number of arithmetic numbers? ");
-        scanf("%d", &num);
+        num = atoi(argv[1]);
         start_time = MPI_Wtime();
     }
 
