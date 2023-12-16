@@ -8,6 +8,8 @@
 #define SOFTENING 1e-9f
 #define MASTER 0
 #define ACCURACY 0.01f
+#define N 8
+#define TOO_MANY_PROCESSES 1
 
 typedef struct
 {
@@ -155,6 +157,11 @@ void parallelImplementation(int argc, char **argv, float *initialBuf, Result *pa
     int processRank, communicatorSize;
     MPI_Comm_rank(MPI_COMM_WORLD, &processRank);
     MPI_Comm_size(MPI_COMM_WORLD, &communicatorSize);
+
+    if (communicatorSize > N)
+    {
+        MPI_Abort(MPI_COMM_WORLD, TOO_MANY_PROCESSES);
+    }
 
     if (processRank == MASTER)
     {
