@@ -190,48 +190,50 @@ void parallelImplementation(int argc, char **argv, float *initialBuf, Result *pa
     int start = processRank * chunkSize;
     int end = (start + chunkSize < nBodies ? start + chunkSize : nBodies);
 
-    int recvCounts[communicatorSize];
-    int displacements[communicatorSize];
-    for (int i = 0; i < communicatorSize; i++)
+    if (end > start)
     {
-        displacements[i] = i * chunkSize * 6;
-        if (i < communicatorSize - 1)
+        int recvCounts[communicatorSize];
+        int displacements[communicatorSize];
+        for (int i = 0; i < communicatorSize; i++)
         {
-            recvCounts[i] = chunkSize * 6;
-        }
-        else
-        {
-            recvCounts[i] = (nBodies - ((communicatorSize - 1) * chunkSize)) * 6;
-        }
-    }
-
-    for (int iter = 0; iter < nIters; iter++)
-    {
-        bodyForceParallel(p, dt, nBodies, start, end);
-
-        MPI_Allgatherv(buf + start * 6, (end - start) * 6, MPI_FLOAT,
-                       recvBuf, recvCounts, displacements, MPI_FLOAT, MPI_COMM_WORLD);
-
-        memcpy(buf, recvBuf, nBodies * 6 * sizeof(float));
-
-        if (processRank == MASTER)
-        {
-            saveToCSV(p, nBodies, iter, folder);
+            displacements[i] = i * chunkSize * 6;
+            if (i < communicatorSize - 1)
+            {
+                recvCounts[i] = chunkSize * 6;
+            }
+            else
+            {
+                recvCounts[i] = (nBodies - ((communicatorSize - 1) * chunkSize)) * 6;
+            }
         }
 
-        for (int i = 0; i < nBodies; i++)
+        for (int iter = 0; iter < nIters; iter++)
         {
-            p[i].x += p[i].vx * dt;
-            p[i].y += p[i].vy * dt;
-            p[i].z += p[i].vz * dt;
+            bodyForceParallel(p, dt, nBodies, start, end);
+
+            MPI_Allgatherv(buf + start * 6, (end - start) * 6, MPI_FLOAT,
+                           recvBuf, recvCounts, displacements, MPI_FLOAT, MPI_COMM_WORLD);
+
+            memcpy(buf, recvBuf, nBodies * 6 * sizeof(float));
+
+            if (processRank == MASTER)
+            {
+                saveToCSV(p, nBodies, iter, folder);
+            }
+
+            for (int i = 0; i < nBodies; i++)
+            {
+                p[i].x += p[i].vx * dt;
+                p[i].y += p[i].vy * dt;
+                p[i].z += p[i].vz * dt;
+            }
         }
     }
 
     free(fakeBuf);
+    free(recvBuf);
     if (processRank == MASTER)
     {
-        free(recvBuf);
-
         double endTime = MPI_Wtime();
         double executionTime = endTime - startTime;
 
