@@ -233,7 +233,7 @@ int main(int argc, char **argv)
                 bodyForceParallel(p, dt, nBodies, start, end);
                 MPI_Isend(buf + start * 6, (end - start) * 6, MPI_FLOAT, MASTER, RESULT_TAG, MPI_COMM_WORLD,
                           &request);
-                MPI_Recv(&keepOnWorking, 1, MPI_INT, MASTER, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+                MPI_Recv(&keepOnWorking, 1, MPI_INT, MASTER, SHOULD_KEEP_WORKING_TAG, MPI_COMM_WORLD, &status);
                 if (keepOnWorking)
                 {
                     MPI_Recv(buf, nBodies * 6, MPI_FLOAT, MASTER, BUF_TAG, MPI_COMM_WORLD, &status);
