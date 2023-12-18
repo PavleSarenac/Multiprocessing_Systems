@@ -2,8 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
+#include <string.h>
 
 #define MASTER 0
+
+enum Tags
+{
+    SUBMATRIX_RESULT_TAG = 1000
+};
 
 int prime(int n)
 {
@@ -291,7 +297,7 @@ void r8mat_print(int m, int n, double a[], char *title)
     return;
 }
 
-double *halton_sequence(int argc, char **argv, int i1, int i2, int m)
+double *halton_sequence(int i1, int i2, int m)
 {
     int d;
     int i;
@@ -301,11 +307,12 @@ double *halton_sequence(int argc, char **argv, int i1, int i2, int m)
     int n;
     double *prime_inv;
     double *r, *recvR;
-    int *t;
+    int *t, *recvT;
 
     prime_inv = (double *)malloc(m * sizeof(double));
     r = (double *)malloc(m * (abs(i1 - i2) + 1) * sizeof(double));
     t = (int *)malloc(m * sizeof(int));
+    recvT = (int *)malloc(m * sizeof(int));
 
     if (i1 <= i2)
     {
@@ -319,7 +326,6 @@ double *halton_sequence(int argc, char **argv, int i1, int i2, int m)
     n = abs(i2 - i1) + 1;
 
     int processRank, communicatorSize;
-    MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &processRank);
     MPI_Comm_size(MPI_COMM_WORLD, &communicatorSize);
 
@@ -332,11 +338,27 @@ double *halton_sequence(int argc, char **argv, int i1, int i2, int m)
     int start = processRank * chunkSize;
     int end = (start + chunkSize < m ? start + chunkSize : m);
 
-    MPI_Datatype columnType;
-    MPI_Type_vector(n, 1, m, MPI_FLOAT, &columnType);
-    MPI_Type_commit(&columnType);
+    MPI_Datatype rowType;
+    MPI_Type_vector(n, 1, m, MPI_DOUBLE, &rowType);
+    MPI_Type_commit(&rowType);
 
-    // Every process will work on their columns with indexes [start, end), so work distribution is by matrix columns.
+    int tRecvCounts[communicatorSize];
+    int tDisplacements[communicatorSize];
+    for (int i = 0; i < communicatorSize; i++)
+    {
+        tDisplacements[i] = i * chunkSize;
+        if (i < communicatorSize - 1)
+        {
+            tRecvCounts[i] = chunkSize;
+        }
+        else
+        {
+            tRecvCounts[i] = m - ((communicatorSize - 1) * chunkSize);
+        }
+    }
+
+    // Matrix is represented by array (r) using column-major order, meaning columns are stored contiguously in memory.
+    // For that reason, the following is true: n (number of columns), m (number of rows).
     for (j = 0; j < n; j++)
     {
         for (i = start; i < end; i++)
@@ -347,16 +369,22 @@ double *halton_sequence(int argc, char **argv, int i1, int i2, int m)
 
     i = i1;
 
+    // Reminder: n (number of columns), m (number of rows).
     for (k = 0; k < n; k++)
     {
-        for (j = start; j < end; j++)
+        for (j = 0; j < m; j++)
         {
             t[j] = i;
+        }
+
+        for (j = start; j < end; j++)
+        {
             prime_inv[j] = 1.0 / (double)(prime(j + 1));
         }
 
         while (0 < i4vec_sum(m, t))
         {
+            // Every process will do calculations for (end - start) rows in the current column with index k.
             for (j = start; j < end; j++)
             {
                 d = (t[j] % prime(j + 1));
@@ -364,66 +392,161 @@ double *halton_sequence(int argc, char **argv, int i1, int i2, int m)
                 prime_inv[j] = prime_inv[j] / (double)(prime(j + 1));
                 t[j] = (t[j] / prime(j + 1));
             }
+
+            MPI_Allgatherv(t, end - start, MPI_INT, recvT, tRecvCounts, tDisplacements, MPI_INT, MPI_COMM_WORLD);
+            memcpy(t, recvT, m * sizeof(int));
         }
         i = i + i3;
     }
 
-    free(prime_inv);
-    free(t);
+    /*
+    if (processRank == MASTER)
+    {
+        MPI_Status status;
+        for (int currentProcessRank = 1; currentProcessRank < communicatorSize; currentProcessRank++)
+        {
+            int recvCount;
+            if (currentProcessRank < communicatorSize - 1)
+            {
+                recvCount = chunkSize;
+            }
+            else
+            {
+                recvCount = m - (communicatorSize - 1) * chunkSize;
+            }
+            int rOffset = currentProcessRank * chunkSize;
+            MPI_Recv(r + rOffset, recvCount,
+                     rowType, currentProcessRank, SUBMATRIX_RESULT_TAG, MPI_COMM_WORLD, &status);
+        }
+    }
+    else
+    {
+        MPI_Ssend(r + start, end - start, rowType, MASTER, SUBMATRIX_RESULT_TAG, MPI_COMM_WORLD);
+    }
+    */
 
-    int recvCounts[communicatorSize];
-    int displacements[communicatorSize];
+    /*
+    int rRecvCounts[communicatorSize];
+    int rDisplacements[communicatorSize];
     for (int i = 0; i < communicatorSize; i++)
     {
-        displacements[i] = i * chunkSize;
+        rDisplacements[i] = i * chunkSize;
         if (i < communicatorSize - 1)
         {
-            recvCounts[i] = chunkSize;
+            rRecvCounts[i] = chunkSize;
         }
         else
         {
-            recvCounts[i] = m - ((communicatorSize - 1) * chunkSize);
+            rRecvCounts[i] = m - ((communicatorSize - 1) * chunkSize);
         }
     }
 
-    MPI_Gatherv(r + start, end - start, columnType,
-                recvR, recvCounts, displacements, columnType, MASTER, MPI_COMM_WORLD);
+    MPI_Gatherv(r + start, (end - start), rowType, recvR,
+                rRecvCounts, rDisplacements, rowType, MASTER, MPI_COMM_WORLD);
+    */
 
-    return r;
+    if (processRank == MASTER)
+    {
+        // memcpy(r, recvR, m * (abs(i1 - i2) + 1) * sizeof(double));
+        free(recvR);
+    }
+
+    if (processRank == MASTER)
+    {
+        for (j = 0; j < n; j++)
+        {
+            for (i = 0; i < m; i++)
+            {
+                printf("\nr[%d][%d]=%f;\n", i, j, r[i + j * m]);
+            }
+        }
+    }
+
+    free(recvT);
+    free(prime_inv);
+    free(t);
+    MPI_Type_free(&rowType);
+
+    if (processRank == MASTER)
+    {
+        return r;
+    }
+    else
+    {
+        free(r);
+        return NULL;
+    }
 }
 
-void halton_sequence_test(int argc, char **argv, int iter)
+void halton_sequence_test(int iter)
 {
     int m;
     double *r;
+    int processRank;
 
-    printf("\n");
-    printf("HALTON_SEQUENCE_TEST\n");
-    printf("  HALTON_SEQUENCE returns the elements I1 through I2\n");
-    printf("  of an M-dimensional Halton sequence.\n");
+    MPI_Comm_rank(MPI_COMM_WORLD, &processRank);
 
-    for (m = 1; m <= iter; m++)
+    if (processRank == MASTER)
     {
-        r = halton_sequence(argc, argv, 0, 10, m);
+        printf("\n");
+        printf("HALTON_SEQUENCE_TEST\n");
+        printf("  HALTON_SEQUENCE returns the elements I1 through I2\n");
+        printf("  of an M-dimensional Halton sequence.\n");
+    }
+
+    r = halton_sequence(10, 0, 10);
+    if (processRank == MASTER)
+    {
         free(r);
     }
 
-    m = iter;
-    r = halton_sequence(argc, argv, 10, 0, m);
-    r8mat_print(m, 5, r, "  R:");
-    free(r);
+    /*
+    for (m = 10; m <= iter; m++)
+    {
+        halton_sequence(0, 10, m, returnR);
+        if (processRank == MASTER)
+        {
+            free(returnR);
+        }
+    }
+    */
 
-    return;
+    /*
+    m = iter;
+    halton_sequence(10, 0, m, returnR);
+
+    if (processRank == MASTER)
+    {
+        r8mat_print(m, 5, returnR, "  R:");
+        free(returnR);
+    }
+    */
 }
 
 int main(int argc, char **argv)
 {
-    int iter = atoi(argv[1]);
-    printf("HALTON_TEST:\n");
+    int processRank;
+    MPI_Init(&argc, &argv);
+    MPI_Comm_rank(MPI_COMM_WORLD, &processRank);
 
-    halton_sequence_test(argc, argv, iter);
-    printf("\n");
-    printf("  Normal end of execution.\n");
+    int iter;
 
+    if (processRank == MASTER)
+    {
+        iter = atoi(argv[1]);
+        printf("HALTON_TEST:\n");
+    }
+
+    MPI_Bcast(&iter, 1, MPI_INT, MASTER, MPI_COMM_WORLD);
+
+    halton_sequence_test(iter);
+
+    if (processRank == MASTER)
+    {
+        printf("\n");
+        printf("  Normal end of execution.\n");
+    }
+
+    MPI_Finalize();
     return 0;
 }
