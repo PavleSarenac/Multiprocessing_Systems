@@ -338,120 +338,114 @@ double *halton_sequence(int i1, int i2, int m)
     int start = processRank * chunkSize;
     int end = (start + chunkSize < m ? start + chunkSize : m);
 
-    MPI_Datatype rowType;
-    MPI_Type_vector(n, 1, m, MPI_DOUBLE, &rowType);
-    MPI_Type_commit(&rowType);
+    printf("\nprocessRank: %d; start: %d; end: %d;\n", processRank, start, end);
 
-    int tRecvCounts[communicatorSize];
-    int tDisplacements[communicatorSize];
-    for (int i = 0; i < communicatorSize; i++)
+    int shouldBeIncluded;
+    if (end > start)
+        shouldBeIncluded = 1;
+    else
+        shouldBeIncluded = 0;
+
+    MPI_Comm reducedComm;
+    MPI_Comm_split(MPI_COMM_WORLD, shouldBeIncluded, processRank, &reducedComm);
+    MPI_Comm_size(reducedComm, &communicatorSize);
+
+    if (end > start)
     {
-        tDisplacements[i] = i * chunkSize;
-        if (i < communicatorSize - 1)
-        {
-            tRecvCounts[i] = chunkSize;
-        }
-        else
-        {
-            tRecvCounts[i] = m - ((communicatorSize - 1) * chunkSize);
-        }
-    }
+        MPI_Datatype rowType;
+        MPI_Type_vector(n, 1, m, MPI_DOUBLE, &rowType);
+        MPI_Type_commit(&rowType);
 
-    // Matrix is represented by array (r) using column-major order, meaning columns are stored contiguously in memory.
-    // For that reason, the following is true: n (number of columns), m (number of rows).
-    for (j = 0; j < n; j++)
-    {
-        for (i = start; i < end; i++)
+        int tRecvCounts[communicatorSize];
+        int tDisplacements[communicatorSize];
+        for (int i = 0; i < communicatorSize; i++)
         {
-            r[i + j * m] = 0.0;
-        }
-    }
-
-    i = i1;
-
-    // Reminder: n (number of columns), m (number of rows).
-    for (k = 0; k < n; k++)
-    {
-        for (j = 0; j < m; j++)
-        {
-            t[j] = i;
-        }
-
-        for (j = start; j < end; j++)
-        {
-            prime_inv[j] = 1.0 / (double)(prime(j + 1));
-        }
-
-        while (0 < i4vec_sum(m, t))
-        {
-            // Every process will do calculations for (end - start) rows in the current column with index k.
-            for (j = start; j < end; j++)
+            tDisplacements[i] = i * chunkSize;
+            if (i < communicatorSize - 1)
             {
-                d = (t[j] % prime(j + 1));
-                r[j + k * m] = r[j + k * m] + (double)(d)*prime_inv[j];
-                prime_inv[j] = prime_inv[j] / (double)(prime(j + 1));
-                t[j] = (t[j] / prime(j + 1));
-            }
-
-            MPI_Allgatherv(t, end - start, MPI_INT, recvT, tRecvCounts, tDisplacements, MPI_INT, MPI_COMM_WORLD);
-            memcpy(t, recvT, m * sizeof(int));
-        }
-        i = i + i3;
-    }
-
-    /*
-    if (processRank == MASTER)
-    {
-        MPI_Status status;
-        for (int currentProcessRank = 1; currentProcessRank < communicatorSize; currentProcessRank++)
-        {
-            int recvCount;
-            if (currentProcessRank < communicatorSize - 1)
-            {
-                recvCount = chunkSize;
+                tRecvCounts[i] = chunkSize;
             }
             else
             {
-                recvCount = m - (communicatorSize - 1) * chunkSize;
+                tRecvCounts[i] = m - ((communicatorSize - 1) * chunkSize);
             }
-            int rOffset = currentProcessRank * chunkSize;
-            MPI_Recv(r + rOffset, recvCount,
-                     rowType, currentProcessRank, SUBMATRIX_RESULT_TAG, MPI_COMM_WORLD, &status);
         }
-    }
-    else
-    {
-        MPI_Ssend(r + start, end - start, rowType, MASTER, SUBMATRIX_RESULT_TAG, MPI_COMM_WORLD);
-    }
-    */
 
-    /*
-    int rRecvCounts[communicatorSize];
-    int rDisplacements[communicatorSize];
-    for (int i = 0; i < communicatorSize; i++)
-    {
-        rDisplacements[i] = i * chunkSize;
-        if (i < communicatorSize - 1)
+        // Matrix is represented by array (r) using column-major order, meaning columns are stored contiguously in memory.
+        // For that reason, the following is true: n (number of columns), m (number of rows).
+        for (j = 0; j < n; j++)
         {
-            rRecvCounts[i] = chunkSize;
+            for (i = start; i < end; i++)
+            {
+                r[i + j * m] = 0.0;
+            }
         }
-        else
+
+        i = i1;
+
+        // Reminder: n (number of columns), m (number of rows).
+        for (k = 0; k < n; k++)
         {
-            rRecvCounts[i] = m - ((communicatorSize - 1) * chunkSize);
+            for (j = 0; j < m; j++)
+            {
+                t[j] = i;
+            }
+
+            for (j = start; j < end; j++)
+            {
+                prime_inv[j] = 1.0 / (double)(prime(j + 1));
+            }
+
+            while (0 < i4vec_sum(m, t))
+            {
+                // Every process will do calculations for (end - start) rows in the current column with index k.
+                for (j = start; j < end; j++)
+                {
+                    d = (t[j] % prime(j + 1));
+                    r[j + k * m] = r[j + k * m] + (double)(d)*prime_inv[j];
+                    prime_inv[j] = prime_inv[j] / (double)(prime(j + 1));
+                    t[j] = (t[j] / prime(j + 1));
+                }
+
+                MPI_Allgatherv(t + start, end - start, MPI_INT,
+                               recvT, tRecvCounts, tDisplacements, MPI_INT, reducedComm);
+                memcpy(t, recvT, m * sizeof(int));
+            }
+            i = i + i3;
         }
+
+        /*
+        int rRecvCounts[communicatorSize];
+        int rDisplacements[communicatorSize];
+        for (int i = 0; i < communicatorSize; i++)
+        {
+            rDisplacements[i] = i * chunkSize;
+            if (i < communicatorSize - 1)
+            {
+                rRecvCounts[i] = chunkSize;
+            }
+            else
+            {
+                rRecvCounts[i] = m - ((communicatorSize - 1) * chunkSize);
+            }
+        }
+
+        MPI_Gatherv(r + start, (end - start), rowType, recvR,
+                    rRecvCounts, rDisplacements, rowType, MASTER, reducedComm);
+        */
+
+        /*
+        if (processRank == MASTER)
+        {
+            memcpy(r, recvR, m * (abs(i1 - i2) + 1) * sizeof(double));
+            free(recvR);
+        }
+        */
+
+        MPI_Type_free(&rowType);
     }
 
-    MPI_Gatherv(r + start, (end - start), rowType, recvR,
-                rRecvCounts, rDisplacements, rowType, MASTER, MPI_COMM_WORLD);
-    */
-
-    if (processRank == MASTER)
-    {
-        // memcpy(r, recvR, m * (abs(i1 - i2) + 1) * sizeof(double));
-        free(recvR);
-    }
-
-    if (processRank == MASTER)
+    if (processRank == 4)
     {
         for (j = 0; j < n; j++)
         {
@@ -465,7 +459,6 @@ double *halton_sequence(int i1, int i2, int m)
     free(recvT);
     free(prime_inv);
     free(t);
-    MPI_Type_free(&rowType);
 
     if (processRank == MASTER)
     {
@@ -494,10 +487,10 @@ void halton_sequence_test(int iter)
         printf("  of an M-dimensional Halton sequence.\n");
     }
 
-    r = halton_sequence(10, 0, 10);
+    r = halton_sequence(10, 0, iter);
     if (processRank == MASTER)
     {
-        free(r);
+        // free(r);
     }
 
     /*
