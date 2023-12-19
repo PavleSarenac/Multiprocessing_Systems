@@ -1,0 +1,163 @@
+=====================================================================================================================
+./halton 10
+
+1) Sequential implementation execution time: 0.001438s
+2) Sequential implementation execution time: 0.001317s
+3) Sequential implementation execution time: 0.00332s
+4) Sequential implementation execution time: 0.00147s
+5) Sequential implementation execution time: 0.002347s
+
+1) Parallel implementation (one process) execution time: 0.000647s
+Test PASSED
+2) Parallel implementation (one process) execution time: 0.000579s
+Test PASSED
+3) Parallel implementation (one process) execution time: 0.000515s
+Test PASSED
+4) Parallel implementation (one process) execution time: 0.000581s
+Test PASSED
+5) Parallel implementation (one process) execution time: 0.000634s
+Test PASSED
+
+1) Parallel implementation (two processes) execution time: 0.000967s
+Test PASSED
+2) Parallel implementation (two processes) execution time: 0.000920s
+Test PASSED
+3) Parallel implementation (two processes) execution time: 0.001309s
+Test PASSED
+4) Parallel implementation (two processes) execution time: 0.001263s
+Test PASSED
+5) Parallel implementation (two processes) execution time: 0.001321s
+Test PASSED
+
+
+1) Parallel implementation (four processes) execution time: 0.001479s
+Test PASSED
+2) Parallel implementation (four processes) execution time: 0.001765s
+Test PASSED
+3) Parallel implementation (four processes) execution time: 0.001681s
+Test PASSED
+4) Parallel implementation (four processes) execution time: 0.001498s
+Test PASSED
+5) Parallel implementation (four processes) execution time: 0.001781s
+Test PASSED
+
+
+1) Parallel implementation (eight processes) execution time: 0.002248s
+Test PASSED
+2) Parallel implementation (eight processes) execution time: 0.002348s
+Test PASSED
+3) Parallel implementation (eight processes) execution time: 0.002462s
+Test PASSED
+4) Parallel implementation (eight processes) execution time: 0.002258s
+Test PASSED
+5) Parallel implementation (eight processes) execution time: 0.002311s
+Test PASSED
+=====================================================================================================================
+./halton 100
+
+1) Sequential implementation execution time: 0.021944s
+2) Sequential implementation execution time: 0.029302s
+3) Sequential implementation execution time: 0.02313s
+4) Sequential implementation execution time: 0.01691s
+5) Sequential implementation execution time: 0.021491s
+
+1) Parallel implementation (one process) execution time: 0.033814s
+Test PASSED
+2) Parallel implementation (one process) execution time: 0.020061s
+Test PASSED
+3) Parallel implementation (one process) execution time: 0.024272s
+Test PASSED
+4) Parallel implementation (one process) execution time: 0.046852s
+Test PASSED
+5) Parallel implementation (one process) execution time: 0.019848s
+Test PASSED
+
+1) Parallel implementation (two processes) execution time: 0.026647s
+Test PASSED
+2) Parallel implementation (two processes) execution time: 0.024121s
+Test PASSED
+3) Parallel implementation (two processes) execution time: 0.020069s
+Test PASSED
+4) Parallel implementation (two processes) execution time: 0.017650s
+Test PASSED
+5) Parallel implementation (two processes) execution time: 0.015214s
+Test PASSED
+
+
+1) Parallel implementation (four processes) execution time: 0.021350s
+Test PASSED
+2) Parallel implementation (four processes) execution time: 0.018789s
+Test PASSED
+3) Parallel implementation (four processes) execution time: 0.023209s
+Test PASSED
+4) Parallel implementation (four processes) execution time: 0.021609s
+Test PASSED
+5) Parallel implementation (four processes) execution time: 0.026850s
+Test PASSED
+
+
+1) Parallel implementation (eight processes) execution time: 0.017296s
+Test PASSED
+2) Parallel implementation (eight processes) execution time: 0.023297s
+Test PASSED
+3) Parallel implementation (eight processes) execution time: 0.019086s
+Test PASSED
+4) Parallel implementation (eight processes) execution time: 0.020474s
+Test PASSED
+5) Parallel implementation (eight processes) execution time: 0.018586s
+Test PASSED
+=====================================================================================================================
+./halton 1000
+
+1) Sequential implementation execution time: 2.426729s
+2) Sequential implementation execution time: 1.876106s
+3) Sequential implementation execution time: 2.456367s
+4) Sequential implementation execution time: 2.054652s
+5) Sequential implementation execution time: 2.375451s
+
+1) Parallel implementation (one process) execution time: 1.946138s
+Test PASSED
+2) Parallel implementation (one process) execution time: 2.066882s
+Test PASSED
+3) Parallel implementation (one process) execution time: 2.316111s
+Test PASSED
+4) Parallel implementation (one process) execution time: 1.861777s
+Test PASSED
+5) Parallel implementation (one process) execution time: 2.326114s
+Test PASSED
+
+1) Parallel implementation (two processes) execution time: 1.515994s
+Test PASSED
+2) Parallel implementation (two processes) execution time: 1.264484s
+Test PASSED
+3) Parallel implementation (two processes) execution time: 1.659119s
+Test PASSED
+4) Parallel implementation (two processes) execution time: 2.395722s
+Test PASSED
+5) Parallel implementation (two processes) execution time: 1.025546s
+Test PASSED
+
+
+1) Parallel implementation (four processes) execution time: 0.929994s
+Test PASSED
+2) Parallel implementation (four processes) execution time: 1.313869s
+Test PASSED
+3) Parallel implementation (four processes) execution time: 1.435206s
+Test PASSED
+4) Parallel implementation (four processes) execution time: 1.578253s
+Test PASSED
+5) Parallel implementation (four processes) execution time: 0.992377s
+Test PASSED
+
+
+1) Parallel implementation (eight processes) execution time: 0.877080s
+Test PASSED
+2) Parallel implementation (eight processes) execution time: 1.178417s
+Test PASSED
+3) Parallel implementation (eight processes) execution time: 1.255760s
+Test PASSED
+4) Parallel implementation (eight processes) execution time: 1.182725s
+Test PASSED
+5) Parallel implementation (eight processes) execution time: 1.191105s
+Test PASSED
+=====================================================================================================================

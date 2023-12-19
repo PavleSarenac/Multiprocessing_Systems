@@ -423,10 +423,8 @@ double *halton_sequence(int i1, int i2, int m)
                 MPI_Send(r + start + i, 1, rowType, MASTER, RESULT_ROW_TAG, reducedComm);
             }
         }
-
-        if (processRank == MASTER)
+        else
         {
-
             MPI_Status status;
             for (int currentProcessRank = 1; currentProcessRank < communicatorSize; currentProcessRank++)
             {
@@ -445,8 +443,6 @@ double *halton_sequence(int i1, int i2, int m)
                 }
             }
         }
-
-        MPI_Barrier(reducedComm);
 
         MPI_Type_free(&rowType);
     }

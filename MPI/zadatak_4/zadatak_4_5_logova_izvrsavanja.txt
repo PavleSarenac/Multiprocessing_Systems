@@ -1,0 +1,172 @@
+=====================================================================================================================
+Running ./nbody with 30 particles, 100 iterations, and saving to simulation_1 folder
+
+1) Sequential implementation execution time: 0.007780s
+2) Sequential implementation execution time: 0.005986s
+3) Sequential implementation execution time: 0.006342s
+4) Sequential implementation execution time: 0.006085s
+5) Sequential implementation execution time: 0.006303s
+
+1) Parallel implementation (two processes) execution time: 0.009032s
+Test PASSED
+2) Parallel implementation (two processes) execution time: 0.004770s
+Test PASSED
+3) Parallel implementation (two processes) execution time: 0.007247s
+Test PASSED
+4) Parallel implementation (two processes) execution time: 0.005321s
+Test PASSED
+5) Parallel implementation (two processes) execution time: 0.008055s
+Test PASSED
+
+
+1) Parallel implementation (four processes) execution time: 0.005065s
+Test PASSED
+2) Parallel implementation (four processes) execution time: 0.004809s
+Test PASSED
+3) Parallel implementation (four processes) execution time: 0.007469s
+Test PASSED
+4) Parallel implementation (four processes) execution time: 0.004654s
+Test PASSED
+5) Parallel implementation (four processes) execution time: 0.004637s
+Test PASSED
+
+
+1) Parallel implementation (eight processes) execution time: 0.008151s
+Test PASSED
+2) Parallel implementation (eight processes) execution time: 0.005230s
+Test PASSED
+3) Parallel implementation (eight processes) execution time: 0.005478s
+Test PASSED
+4) Parallel implementation (eight processes) execution time: 0.008572s
+Test PASSED
+5) Parallel implementation (eight processes) execution time: 0.008694s
+Test PASSED
+=====================================================================================================================
+Running ./nbody with 30 particles, 1000 iterations, and saving to simulation_2 folder
+
+1) Sequential implementation execution time: 0.034302s
+2) Sequential implementation execution time: 0.032234s
+3) Sequential implementation execution time: 0.032268s
+4) Sequential implementation execution time: 0.061055s
+5) Sequential implementation execution time: 0.087035s
+
+1) Parallel implementation (two processes) execution time: 0.060754s
+Test PASSED
+2) Parallel implementation (two processes) execution time: 0.044798s
+Test PASSED
+3) Parallel implementation (two processes) execution time: 0.046263s
+Test PASSED
+4) Parallel implementation (two processes) execution time: 0.044923s
+Test PASSED
+5) Parallel implementation (two processes) execution time: 0.044546s
+Test PASSED
+
+
+1) Parallel implementation (four processes) execution time: 0.070935s
+Test PASSED
+2) Parallel implementation (four processes) execution time: 0.056291s
+Test PASSED
+3) Parallel implementation (four processes) execution time: 0.045188s
+Test PASSED
+4) Parallel implementation (four processes) execution time: 0.041926s
+Test PASSED
+5) Parallel implementation (four processes) execution time: 0.042342s
+Test PASSED
+
+
+1) Parallel implementation (eight processes) execution time: 0.060809s
+Test PASSED
+2) Parallel implementation (eight processes) execution time: 0.072969s
+Test PASSED
+3) Parallel implementation (eight processes) execution time: 0.044544s
+Test PASSED
+4) Parallel implementation (eight processes) execution time: 0.073633s
+Test PASSED
+5) Parallel implementation (eight processes) execution time: 0.074720s
+Test PASSED
+=====================================================================================================================
+Running ./nbody with 3000 particles, 100 iterations, and saving to simulation_3 folder
+
+1) Sequential implementation execution time: 2.410705s
+2) Sequential implementation execution time: 2.384984s
+3) Sequential implementation execution time: 2.418174s
+4) Sequential implementation execution time: 2.374854s
+5) Sequential implementation execution time: 2.372053s
+
+1) Parallel implementation (two processes) execution time: 6.683932s
+Test PASSED
+2) Parallel implementation (two processes) execution time: 6.720697s
+Test PASSED
+3) Parallel implementation (two processes) execution time: 6.982235s
+Test PASSED
+4) Parallel implementation (two processes) execution time: 6.975740s
+Test PASSED
+5) Parallel implementation (two processes) execution time: 6.979290s
+Test PASSED
+
+
+1) Parallel implementation (four processes) execution time: 2.459006s
+Test PASSED
+2) Parallel implementation (four processes) execution time: 2.666010s
+Test PASSED
+3) Parallel implementation (four processes) execution time: 2.975862s
+Test PASSED
+4) Parallel implementation (four processes) execution time: 2.865968s
+Test PASSED
+5) Parallel implementation (four processes) execution time: 2.821941s
+Test PASSED
+
+
+1) Parallel implementation (eight processes) execution time: 2.307185s
+Test PASSED
+2) Parallel implementation (eight processes) execution time: 2.555085s
+Test PASSED
+3) Parallel implementation (eight processes) execution time: 2.786871s
+Test PASSED
+4) Parallel implementation (eight processes) execution time: 2.442903s
+Test PASSED
+5) Parallel implementation (eight processes) execution time: 2.195643s
+Test PASSED
+=====================================================================================================================
+Running ./nbody with 3000 particles, 1000 iterations, and saving to simulation_4 folder
+
+1) Sequential implementation execution time: 23.769746s
+2) Sequential implementation execution time: 23.880281s
+3) Sequential implementation execution time: 23.901166s
+4) Sequential implementation execution time: 23.998033s
+5) Sequential implementation execution time: 23.919460s
+
+1) Parallel implementation (two processes) execution time: 70.209837s
+Test PASSED
+2) Parallel implementation (two processes) execution time: 70.545404s
+Test PASSED
+3) Parallel implementation (two processes) execution time: 70.608731s
+Test PASSED
+4) Parallel implementation (two processes) execution time: 70.615801s
+Test PASSED
+5) Parallel implementation (two processes) execution time: 70.358774s
+Test PASSED
+
+1) Parallel implementation (four processes) execution time: 28.602495s
+Test PASSED
+2) Parallel implementation (four processes) execution time: 29.142742s
+Test PASSED
+3) Parallel implementation (four processes) execution time: 29.044014s
+Test PASSED
+4) Parallel implementation (four processes) execution time: 28.84538s
+Test PASSED
+5) Parallel implementation (four processes) execution time: 28.626930s
+Test PASSED
+
+
+1) Parallel implementation (eight processes) execution time: 24.621491s
+Test PASSED
+2) Parallel implementation (eight processes) execution time: 25.213107s
+Test PASSED
+3) Parallel implementation (eight processes) execution time: 24.876812s
+Test PASSED
+4) Parallel implementation (eight processes) execution time: 24.883980s
+Test PASSED
+5) Parallel implementation (eight processes) execution time: 24.179826s
+Test PASSED
+=====================================================================================================================

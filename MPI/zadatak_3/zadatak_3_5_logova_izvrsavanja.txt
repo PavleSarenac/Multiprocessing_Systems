@@ -53,8 +53,6 @@ Test PASSED
 5) Parallel implementation (eight processes) execution time: 0.007869s
 Test PASSED
 =====================================================================================================================
-
-=====================================================================================================================
 Running ./nbody with 30 particles, 1000 iterations, and saving to simulation_2 folder
 
 1) Sequential implementation execution time: 0.034302s
