@@ -8,7 +8,7 @@
 
 enum Tags
 {
-    SUBMATRIX_RESULT_TAG = 1000
+    RESULT_ROW_TAG = 1000
 };
 
 int prime(int n)
@@ -329,16 +329,9 @@ double *halton_sequence(int i1, int i2, int m)
     MPI_Comm_rank(MPI_COMM_WORLD, &processRank);
     MPI_Comm_size(MPI_COMM_WORLD, &communicatorSize);
 
-    if (processRank == MASTER)
-    {
-        recvR = (double *)malloc(m * (abs(i1 - i2) + 1) * sizeof(double));
-    }
-
     int chunkSize = (m + communicatorSize - 1) / communicatorSize;
     int start = processRank * chunkSize;
     int end = (start + chunkSize < m ? start + chunkSize : m);
-
-    printf("\nprocessRank: %d; start: %d; end: %d;\n", processRank, start, end);
 
     int shouldBeIncluded;
     if (end > start)
@@ -414,46 +407,48 @@ double *halton_sequence(int i1, int i2, int m)
             i = i + i3;
         }
 
-        /*
-        int rRecvCounts[communicatorSize];
-        int rDisplacements[communicatorSize];
-        for (int i = 0; i < communicatorSize; i++)
+        if (processRank != MASTER)
         {
-            rDisplacements[i] = i * chunkSize;
-            if (i < communicatorSize - 1)
+            int numberOfRows;
+            if (processRank < communicatorSize - 1)
             {
-                rRecvCounts[i] = chunkSize;
+                numberOfRows = chunkSize;
             }
             else
             {
-                rRecvCounts[i] = m - ((communicatorSize - 1) * chunkSize);
+                numberOfRows = m - ((communicatorSize - 1) * chunkSize);
+            }
+            for (int i = 0; i < numberOfRows; i++)
+            {
+                MPI_Send(r + start + i, 1, rowType, MASTER, RESULT_ROW_TAG, reducedComm);
             }
         }
 
-        MPI_Gatherv(r + start, (end - start), rowType, recvR,
-                    rRecvCounts, rDisplacements, rowType, MASTER, reducedComm);
-        */
-
-        /*
         if (processRank == MASTER)
         {
-            memcpy(r, recvR, m * (abs(i1 - i2) + 1) * sizeof(double));
-            free(recvR);
-        }
-        */
 
-        MPI_Type_free(&rowType);
-    }
-
-    if (processRank == 4)
-    {
-        for (j = 0; j < n; j++)
-        {
-            for (i = 0; i < m; i++)
+            MPI_Status status;
+            for (int currentProcessRank = 1; currentProcessRank < communicatorSize; currentProcessRank++)
             {
-                printf("\nr[%d][%d]=%f;\n", i, j, r[i + j * m]);
+                int numberOfRows;
+                if (currentProcessRank < communicatorSize - 1)
+                {
+                    numberOfRows = chunkSize;
+                }
+                else
+                {
+                    numberOfRows = m - ((communicatorSize - 1) * chunkSize);
+                }
+                for (int j = 0; j < numberOfRows; j++)
+                {
+                    MPI_Recv(r + currentProcessRank * chunkSize + j, 1, rowType, currentProcessRank, RESULT_ROW_TAG, reducedComm, &status);
+                }
             }
         }
+
+        MPI_Barrier(reducedComm);
+
+        MPI_Type_free(&rowType);
     }
 
     free(recvT);
@@ -487,33 +482,32 @@ void halton_sequence_test(int iter)
         printf("  of an M-dimensional Halton sequence.\n");
     }
 
-    r = halton_sequence(10, 0, iter);
+    double startTime, endTime;
+
     if (processRank == MASTER)
     {
-        // free(r);
+        startTime = MPI_Wtime();
     }
 
-    /*
-    for (m = 10; m <= iter; m++)
+    for (m = 1; m <= iter; m++)
     {
-        halton_sequence(0, 10, m, returnR);
+        r = halton_sequence(0, 10, m);
         if (processRank == MASTER)
         {
-            free(returnR);
+            free(r);
         }
     }
-    */
 
-    /*
     m = iter;
-    halton_sequence(10, 0, m, returnR);
+    r = halton_sequence(10, 0, m);
 
     if (processRank == MASTER)
     {
-        r8mat_print(m, 5, returnR, "  R:");
-        free(returnR);
+        endTime = MPI_Wtime();
+        r8mat_print(m, 5, r, "  R:");
+        free(r);
+        printf("Parallel implementation execution time: %fs\n", endTime - startTime);
     }
-    */
 }
 
 int main(int argc, char **argv)
