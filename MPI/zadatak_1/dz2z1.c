@@ -6,6 +6,14 @@
 #define N 8
 #define TOO_MANY_PROCESSES 1
 
+typedef struct Result
+{
+    unsigned int arithmetic_count;
+    unsigned int composite_count;
+    unsigned int n;
+    double execution_time;
+} Result;
+
 void divisor_count_and_sum(unsigned int n, unsigned int *pcount,
                            unsigned int *psum)
 {
@@ -37,7 +45,35 @@ void divisor_count_and_sum(unsigned int n, unsigned int *pcount,
     *psum = divisor_sum;
 }
 
-int main(int argc, char **argv)
+void sequential_implementation(char **argv, Result *sequentialResult)
+{
+    int num = atoi(argv[1]);
+    unsigned int arithmetic_count = 0;
+    unsigned int composite_count = 0;
+    unsigned int n;
+
+    double start_time = MPI_Wtime();
+    for (n = 1; arithmetic_count <= num; ++n)
+    {
+        unsigned int divisor_count;
+        unsigned int divisor_sum;
+        divisor_count_and_sum(n, &divisor_count, &divisor_sum);
+        if (divisor_sum % divisor_count != 0)
+            continue;
+        ++arithmetic_count;
+        if (divisor_count > 2)
+            ++composite_count;
+    }
+    double end_time = MPI_Wtime();
+    double execution_time = end_time - start_time;
+
+    sequentialResult->arithmetic_count = arithmetic_count;
+    sequentialResult->composite_count = composite_count;
+    sequentialResult->n = n;
+    sequentialResult->execution_time = execution_time;
+}
+
+void parallel_implementation(char **argv, Result *parallelResult)
 {
     int num;
     unsigned int local_arithmetic_count = 0, global_arithmetic_count = 0;
@@ -47,9 +83,7 @@ int main(int argc, char **argv)
     unsigned int global_start = 1, local_start, local_end, chunk_size;
     unsigned int number_of_iterations;
     int communicator_size, process_rank;
-    double start_time, end_time;
 
-    MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &communicator_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &process_rank);
 
@@ -61,6 +95,11 @@ int main(int argc, char **argv)
     if (process_rank == MASTER)
     {
         num = atoi(argv[1]);
+    }
+
+    double start_time, end_time;
+    if (process_rank == MASTER)
+    {
         start_time = MPI_Wtime();
     }
 
@@ -98,10 +137,59 @@ int main(int argc, char **argv)
     if (process_rank == MASTER)
     {
         end_time = MPI_Wtime();
-        printf("\n%uth arithmetic number is %u\n", global_arithmetic_count, n);
-        printf("Number of composite arithmetic numbers <= %u: %u\n", n, global_composite_count);
-        printf("Execution time: %fs\n", end_time - start_time);
+        parallelResult->arithmetic_count = global_arithmetic_count;
+        parallelResult->composite_count = global_composite_count;
+        parallelResult->n = n;
+        parallelResult->execution_time = end_time - start_time;
     }
+}
+
+int are_results_equal(Result *sequential_result, Result *parallel_result)
+{
+    if (sequential_result->arithmetic_count == parallel_result->arithmetic_count &&
+        sequential_result->composite_count == parallel_result->composite_count &&
+        sequential_result->n == parallel_result->n)
+        return 1;
+    return 0;
+}
+
+int main(int argc, char **argv)
+{
+    MPI_Init(&argc, &argv);
+    int processRank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &processRank);
+
+    Result *sequentialResult, *parallelResult = malloc(sizeof(Result));
+
+    if (processRank == MASTER)
+    {
+        /*
+         * The main purpose of executing sequential implementation here is to retrieve its results so
+         * that they can be compared with the results of the parallel implementation. The execution time
+         * of the sequential implementation here is not relevant because it is executed inside of the MPI
+         * world, so it is much slower than the actual sequential implementation executed outside of the
+         * MPI world.
+         */
+        sequentialResult = (Result *)malloc(sizeof(Result));
+        sequential_implementation(argv, sequentialResult);
+        printf("Sequential implementation execution time: %fs\n", sequentialResult->execution_time);
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    parallel_implementation(argv, parallelResult);
+    if (processRank == MASTER)
+    {
+        printf("Parallel implementation execution time: %fs\n", parallelResult->execution_time);
+        if (are_results_equal(sequentialResult, parallelResult))
+            printf("Test PASSED\n");
+        else
+            printf("Test FAILED\n");
+        free(sequentialResult);
+    }
+
+    free(parallelResult);
+
     MPI_Finalize();
     return 0;
 }

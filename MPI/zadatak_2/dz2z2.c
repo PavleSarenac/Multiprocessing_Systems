@@ -5,11 +5,20 @@
 #include <string.h>
 
 #define MASTER 0
+#define ACCURACY 0.01
 
 enum Tags
 {
     RESULT_ROW_TAG = 1000
 };
+
+typedef struct Result
+{
+    double execution_time;
+    double *r;
+    int number_of_rows;
+    int number_of_columns;
+} Result;
 
 int prime(int n)
 {
@@ -462,7 +471,74 @@ double *halton_sequence(int i1, int i2, int m)
     }
 }
 
-void halton_sequence_test(int iter)
+double *halton_sequence_sequential(int i1, int i2, int m, Result *sequential_result)
+{
+    int d;
+    int i;
+    int i3;
+    int j;
+    int k;
+    int n;
+    double *prime_inv;
+    double *r;
+    int *t;
+
+    prime_inv = (double *)malloc(m * sizeof(double));
+    r = (double *)malloc(m * (abs(i1 - i2) + 1) * sizeof(double));
+    t = (int *)malloc(m * sizeof(int));
+
+    if (i1 <= i2)
+    {
+        i3 = +1;
+    }
+    else
+    {
+        i3 = -1;
+    }
+
+    n = abs(i2 - i1) + 1;
+
+    for (j = 0; j < n; j++)
+    {
+        for (i = 0; i < m; i++)
+        {
+            r[i + j * m] = 0.0;
+        }
+    }
+
+    i = i1;
+
+    for (k = 0; k < n; k++)
+    {
+        for (j = 0; j < m; j++)
+        {
+            t[j] = i;
+        }
+        for (j = 0; j < m; j++)
+        {
+            prime_inv[j] = 1.0 / (double)(prime(j + 1));
+        }
+
+        while (0 < i4vec_sum(m, t))
+        {
+            for (j = 0; j < m; j++)
+            {
+                d = (t[j] % prime(j + 1));
+                r[j + k * m] = r[j + k * m] + (double)(d)*prime_inv[j];
+                prime_inv[j] = prime_inv[j] / (double)(prime(j + 1));
+                t[j] = (t[j] / prime(j + 1));
+            }
+        }
+        i = i + i3;
+    }
+
+    free(prime_inv);
+    free(t);
+
+    return r;
+}
+
+void halton_sequence_test_parallel(int iter, Result *parallel_result)
 {
     int m;
     double *r;
@@ -470,19 +546,11 @@ void halton_sequence_test(int iter)
 
     MPI_Comm_rank(MPI_COMM_WORLD, &processRank);
 
-    if (processRank == MASTER)
-    {
-        printf("\n");
-        printf("HALTON_SEQUENCE_TEST\n");
-        printf("  HALTON_SEQUENCE returns the elements I1 through I2\n");
-        printf("  of an M-dimensional Halton sequence.\n");
-    }
-
-    double startTime, endTime;
+    double start_time, end_time;
 
     if (processRank == MASTER)
     {
-        startTime = MPI_Wtime();
+        start_time = MPI_Wtime();
     }
 
     for (m = 1; m <= iter; m++)
@@ -499,11 +567,57 @@ void halton_sequence_test(int iter)
 
     if (processRank == MASTER)
     {
-        endTime = MPI_Wtime();
-        r8mat_print(m, 5, r, "  R:");
-        free(r);
-        printf("Parallel implementation execution time: %fs\n", endTime - startTime);
+        end_time = MPI_Wtime();
+        parallel_result->execution_time = end_time - start_time;
+        parallel_result->r = r;
+        parallel_result->number_of_rows = m;
+        parallel_result->number_of_columns = 11;
     }
+}
+
+void halton_sequence_test_sequential(int iter, Result *sequential_result)
+{
+    int m;
+    double *r;
+
+    double start_time = MPI_Wtime();
+
+    for (m = 1; m <= iter; m++)
+    {
+        r = halton_sequence_sequential(0, 10, m, sequential_result);
+        free(r);
+    }
+
+    m = iter;
+    r = halton_sequence_sequential(10, 0, m, sequential_result);
+
+    double end_time = MPI_Wtime();
+
+    sequential_result->execution_time = end_time - start_time;
+    sequential_result->r = r;
+    sequential_result->number_of_rows = m;
+    sequential_result->number_of_columns = 11;
+
+    return;
+}
+
+int are_results_equal(Result *sequential_result, Result *parallel_result)
+{
+    if (sequential_result->number_of_rows != parallel_result->number_of_rows ||
+        sequential_result->number_of_columns != parallel_result->number_of_columns)
+        return 0;
+    int m = sequential_result->number_of_rows, n = sequential_result->number_of_columns;
+    double *r1 = sequential_result->r, *r2 = parallel_result->r;
+    for (int j = 0; j < n; j++)
+    {
+        for (int i = 0; i < m; i++)
+        {
+            if ((r1[i + j * m] < (r2[i + j * m] - ACCURACY)) ||
+                (r1[i + j * m] > (r2[i + j * m] + ACCURACY)))
+                return 0;
+        }
+    }
+    return 1;
 }
 
 int main(int argc, char **argv)
@@ -512,23 +626,35 @@ int main(int argc, char **argv)
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &processRank);
 
+    Result *sequential_result, *parallel_result = (Result *)malloc(sizeof(Result));
+
     int iter;
 
     if (processRank == MASTER)
     {
         iter = atoi(argv[1]);
-        printf("HALTON_TEST:\n");
+        sequential_result = (Result *)malloc(sizeof(Result));
+        halton_sequence_test_sequential(iter, sequential_result);
+        printf("Sequential implementation execution time: %fs\n", sequential_result->execution_time);
     }
+
+    MPI_Barrier(MPI_COMM_WORLD);
 
     MPI_Bcast(&iter, 1, MPI_INT, MASTER, MPI_COMM_WORLD);
 
-    halton_sequence_test(iter);
+    halton_sequence_test_parallel(iter, parallel_result);
 
     if (processRank == MASTER)
     {
-        printf("\n");
-        printf("  Normal end of execution.\n");
+        printf("Parallel implementation execution time: %fs\n", parallel_result->execution_time);
+        if (are_results_equal(sequential_result, parallel_result))
+            printf("Test PASSED\n");
+        else
+            printf("Test FAILED\n");
+        free(sequential_result);
     }
+
+    free(parallel_result);
 
     MPI_Finalize();
     return 0;

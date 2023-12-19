@@ -147,8 +147,6 @@ void sequentialImplementation(int argc, char **argv, float *initialBuf, Result *
 
 void parallelImplementation(int argc, char **argv, float *initialBuf, Result *parallelResult)
 {
-    double startTime = MPI_Wtime();
-
     int nBodies, nIters;
     const char *folder;
 
@@ -157,6 +155,12 @@ void parallelImplementation(int argc, char **argv, float *initialBuf, Result *pa
     int processRank, communicatorSize;
     MPI_Comm_rank(MPI_COMM_WORLD, &processRank);
     MPI_Comm_size(MPI_COMM_WORLD, &communicatorSize);
+
+    double startTime;
+    if (processRank == MASTER)
+    {
+        startTime = MPI_Wtime();
+    }
 
     if (communicatorSize > N)
     {
