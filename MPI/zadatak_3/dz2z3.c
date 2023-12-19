@@ -190,6 +190,16 @@ void parallelImplementation(int argc, char **argv, float *initialBuf, Result *pa
     int start = processRank * chunkSize;
     int end = (start + chunkSize < nBodies ? start + chunkSize : nBodies);
 
+    int shouldBeIncluded;
+    if (end > start)
+        shouldBeIncluded = 1;
+    else
+        shouldBeIncluded = 0;
+
+    MPI_Comm reducedComm;
+    MPI_Comm_split(MPI_COMM_WORLD, shouldBeIncluded, processRank, &reducedComm);
+    MPI_Comm_size(reducedComm, &communicatorSize);
+
     if (end > start)
     {
         int recvCounts[communicatorSize];
@@ -212,7 +222,7 @@ void parallelImplementation(int argc, char **argv, float *initialBuf, Result *pa
             bodyForceParallel(p, dt, nBodies, start, end);
 
             MPI_Allgatherv(buf + start * 6, (end - start) * 6, MPI_FLOAT,
-                           recvBuf, recvCounts, displacements, MPI_FLOAT, MPI_COMM_WORLD);
+                           recvBuf, recvCounts, displacements, MPI_FLOAT, reducedComm);
 
             memcpy(buf, recvBuf, nBodies * 6 * sizeof(float));
 
