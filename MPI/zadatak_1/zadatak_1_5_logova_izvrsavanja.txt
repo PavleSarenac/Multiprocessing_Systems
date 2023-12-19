@@ -107,3 +107,111 @@ Test PASSED
 5) Parallel implementation (eight processes) execution time: 0.003141s
 Test PASSED
 =====================================================================================================================
+./arithmetic 1000000
+
+1) Sequential implementation execution time: 0.176201s
+2) Sequential implementation execution time: 0.176263s
+3) Sequential implementation execution time: 0.176352s
+4) Sequential implementation execution time: 0.176407s
+5) Sequential implementation execution time: 0.172876s
+
+1) Parallel implementation (one process) execution time: 0.206654s
+Test PASSED
+2) Parallel implementation (one process) execution time: 0.209626s
+Test PASSED
+3) Parallel implementation (one process) execution time: 0.210080s
+Test PASSED
+4) Parallel implementation (one process) execution time: 0.216550s
+Test PASSED
+5) Parallel implementation (one process) execution time: 0.212924s
+Test PASSED
+
+1) Parallel implementation (two processes) execution time: 0.140386s
+Test PASSED
+2) Parallel implementation (two processes) execution time: 0.121653s
+Test PASSED
+3) Parallel implementation (two processes) execution time: 0.122538s
+Test PASSED
+4) Parallel implementation (two processes) execution time: 0.124524s
+Test PASSED
+5) Parallel implementation (two processes) execution time: 0.123712s
+Test PASSED
+
+
+1) Parallel implementation (four processes) execution time: 0.068218s
+Test PASSED
+2) Parallel implementation (four processes) execution time: 0.069427s
+Test PASSED
+3) Parallel implementation (four processes) execution time: 0.100582s
+Test PASSED
+4) Parallel implementation (four processes) execution time: 0.066267s
+Test PASSED
+5) Parallel implementation (four processes) execution time: 0.074126s
+Test PASSED
+
+
+1) Parallel implementation (eight processes) execution time: 0.059723s
+Test PASSED
+2) Parallel implementation (eight processes) execution time: 0.044310s
+Test PASSED
+3) Parallel implementation (eight processes) execution time: 0.050810s
+Test PASSED
+4) Parallel implementation (eight processes) execution time: 0.058358s
+Test PASSED
+5) Parallel implementation (eight processes) execution time: 0.055357s
+Test PASSED
+=====================================================================================================================
+./arithmetic 10000000
+
+1) Sequential implementation execution time: 4.199271s
+2) Sequential implementation execution time: 4.20123s
+3) Sequential implementation execution time: 4.11542s
+4) Sequential implementation execution time: 4.199011s
+5) Sequential implementation execution time: 4.200065s
+
+1) Parallel implementation (one process) execution time: 4.565289s
+Test PASSED
+2) Parallel implementation (one process) execution time: 4.663789s
+Test PASSED
+3) Parallel implementation (one process) execution time: 4.674715s
+Test PASSED
+4) Parallel implementation (one process) execution time: 4.683036s
+Test PASSED
+5) Parallel implementation (one process) execution time: 4.755331s
+Test PASSED
+
+1) Parallel implementation (two processes) execution time: 2.786152s
+Test PASSED
+2) Parallel implementation (two processes) execution time: 2.795939s
+Test PASSED
+3) Parallel implementation (two processes) execution time: 2.831374s
+Test PASSED
+4) Parallel implementation (two processes) execution time: 2.877051s
+Test PASSED
+5) Parallel implementation (two processes) execution time: 2.922525s
+Test PASSED
+
+
+1) Parallel implementation (four processes) execution time: 1.536255s
+Test PASSED
+2) Parallel implementation (four processes) execution time: 1.504884s
+Test PASSED
+3) Parallel implementation (four processes) execution time: 1.590909s
+Test PASSED
+4) Parallel implementation (four processes) execution time: 1.715792s
+Test PASSED
+5) Parallel implementation (four processes) execution time: 1.710693s
+Test PASSED
+
+
+1) Parallel implementation (eight processes) execution time: 1.108353s
+Test PASSED
+2) Parallel implementation (eight processes) execution time: 0.868921s
+Test PASSED
+3) Parallel implementation (eight processes) execution time: 1.050233s
+Test PASSED
+4) Parallel implementation (eight processes) execution time: 1.099810s
+Test PASSED
+5) Parallel implementation (eight processes) execution time: 1.283771s
+Test PASSED
+=====================================================================================================================
