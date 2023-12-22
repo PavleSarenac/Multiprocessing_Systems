@@ -69,7 +69,8 @@ P1: I -- (PrWr/BusRdX) --> M
 Blok A0 u kešu procesora P0 će nakon koraka 4 preći iz stanja I u stanje S zato što je procesor P0 zatražio čitanje ovog bloka,
 što znači da će ovaj blok postati deljen između keševa procesora P0 i P1 (jer je u koraku 3 procesor P1 bio vlasnik ovog bloka, a
 sada će nakon koraka 4 i on preći u stanje S i pri tom ažurirati i operativnu memoriju). Procesor P0 može da pročita blok iz
-operativne memorije, a može i da mu ga dostavi preko magistrale procesor P1 prilikom obavljanja Flush operacije.
+operativne memorije, a može i da mu ga dostavi preko magistrale procesor P1 prilikom obavljanja Flush operacije (u simulatoru
+se ovo dogodi).
 
 P0: I -- (PrRd/BusRd) --> S
 
@@ -77,7 +78,8 @@ P0: I -- (PrRd/BusRd) --> S
 U koraku 2 dolazi do ažuriranja bloka A0 u operativnoj memoriji zato što je procesor P2 zatražio ovaj blok za čitanje, a nema ga
 ni u svom kešu, niti može da ga pronađe u operativnoj memoriji pošto je nakon koraka 1 procesor P0 postao vlasnik bloka. Zato
 nakon koraka 2 procesor P0 mora da uradi Flush operaciju prilikom koje ažurira operativnu memoriju kako bi procesor P2 mogao
-da dohvati taj blok za čitanje. 
+da dohvati taj blok za čitanje (u simulatoru procesor P2 prilikom Flush operacije dostavi preko magistrale direktno procesoru
+P0 blok, tako da ga procesor P0 ne dohvata iz operativne memorije). 
 
 P2: I -- (PrRd/BusRd) --> S
 
@@ -95,3 +97,39 @@ protokole.
 =========================================================================================================================
 MESI (Modified-Exclusive-Shared-Invalid)
 ------------------------------------------------------
+
+10)
+U koraku 2, kada procesor P2 zatraži blok A0 za čitanje, dostaviće mu ga procesor P0 direktno preko magistrale zato što je on
+nakon koraka 1 postao vlasnik tog bloka i zato će nakon koraka 2 uraditi Flush operaciju nakon koje će blok u njegovom kešu preći
+u stanje S. Jasno je da će kod procesora P2 blok A0 biti učitan u stanju S.
+
+11)
+U koraku 3, prilikom upisa procesora P1 u blok A0, on će prvo dobiti tekući ažuran blok od procesora P0 preko magistrale jer
+je kod njega taj blok u stanju S (takođe je i kod procesora P2 u stanju S, ali je naravno dovoljno da samo jedan procesor uradi
+transfer), pri čemu će procesori P0 i P2 u svojim keševima promeniti stanje bloka A0 iz S u I, a zatim će procesor P1 upisati u
+blok A0 samo u svom kešu i promeniti stanje tog bloka iz I u M.
+
+Odlučivanje koji procesor će uraditi transfer bloka u slučajevima kada postoji više keševa kod kojih je blok u stanju S se može
+uraditi na više načina:
+	* Uvođenjem novog stanja F (Forwarding) u kojem će biti blok samo kod procesora koji je zadužen za transfer tog bloka 
+	(MESIF varijanta MESI protokola).
+	* Arbitracijom na magistrali.
+	* Svi procesori u stanju S stavljaju blok na magistralu (tada je neophodno da magistrala podržava istovremeno stavljanje
+	identičnog podatka na nju).
+	
+12)
+Blok A2 će biti u stanju M u kešu procesora P1 nakon koraka 5 zato što je procesor P1 zatražio upis u taj blok, što znači da ga
+onda prvo dohvata iz operativne memorije, a zatim upisuje samo lokalno u svom kešu - on postaje vlasnik tog bloka.
+
+P1: I -- (PrWr/BusRdX) --> M
+
+13)
+Nakon koraka 5, prilikom čitanja bloka A2 od strane procesora P1 se ne vrše nikakve akcije protokola jer je taj blok kod njega
+u stanju M što znači da je ažuran, pa ga on čita iz svog keša bez ikakvog izlaska na magistralu. Čak i da je došlo do upisa od strane
+procesora P1 u ovom koraku umesto čitanja, ne bi se izvršile nikakve akcije protokola ni tada.
+
+P1: M -- (PrRd/--) --> M
+=========================================================================================================================
+MOESI (Modified-Owned-Exclusive-Shared-Invalid)
+------------------------------------------------------------------
+14)
