@@ -1,0 +1,56 @@
+=========================================================================================================================
+Invalidating protocols
+=========================================================================================================================
+WTI (Write-Through Invalidate) No-Allocate
+----------------------------------------------------------
+1) 
+Brojevi pristupa operativnoj memoriji od strane naših 4 procesora su sledeći:
+	- P0: 3
+	- P1: 4
+	- P2: 2
+	- P3 1
+	
+Hit rate ću računati kao (numberOfCacheHits / numberOfRequests) * 100%, gde numberOfCacheHits predstavlja broj zahteva
+koji su mogli da budu opsluženi pristupajući samo keš memoriji (bez pristupa operativnoj memoriji), a numberOfRequests
+predstavlja ukupan broj zahteva upućenih memoriji (nezavisno od toga da li se pristupalo operativnoj memoriji ili ne). Ukoliko se
+u ovom protokolu dogodi Write-Hit, tada neću inkrementirati numberOfCacheHits, tj. to neću računati kao pogodak u kešu, zato
+što se i tada pristupa operativnoj memoriji. Zato, jedina od ovih situacija (Read-Hit, Read-Miss, Write-Hit, Write-Miss) zbog koje 
+ću inkrementirati numberOfCacheHits jeste Read-Hit jer se jedino kod nje uopšte ne pristupa operativnoj memoriji, već se zahtev 
+kompletno opslužuje samo pristupajući keš memoriji.
+
+Hit rate-ovi naših procesora su onda za datu sekvencu sledeći:
+	- P0: 0/3 (0%)
+	- P1: 0/4 (0%)
+	- P2: 0/2 (0%)
+	- P3: 0/1 (0%)
+
+2)
+U koraku 3 se prilikom upisa procesora P1 u blok A0 ažurira operativna memorija, pri čemu se taj blok ne dovlači u keš jer je u 
+pitanju no-allocate varijanta WTI protokola.
+
+3)
+U koraku 4 se događa Read-Miss zato što procesor P0 ne pronalazi blok A0 u svojoj keš memoriji za čitanje.
+
+4)
+U koraku 5 se ne vrši dohvatanje bloka A2 prilikom upisa procesora P1 u taj blok zato što je u pitanju no-allocate varijanta
+WTI protokola.
+
+5)
+Da bi blok A2 u koraku 5 bio dovučen u keš memoriju, treba iskoristiti allocate varijantu WTI protokola jer se kod nje prilikom
+upisa u neki blok koji procesor nema u svom kešu taj blok prvo dovuče iz operativne memorije (BusRd), a zatim se ažurira blok
+i u kešu i u operativnoj memoriji (BusWr).
+
+WTI protokol ima loše performanse zato što koristi Write-Through strategiju pri upisu (kod nje je neophodno da se pri svakom 
+upisu u bilo koji blok od strane bilo kog procesora pristupi i operativnoj memoriji kako bi ona uvek imala ažurne podatke). Zbog
+toga se događa mnogo nepotrebnih pristupa operativnoj memoriji kod ovog protokola.
+
+Ovu pojavu je moguće ublažiti koristeći Write-Back (odloženi upis u operativnu memoriju) umesto Write-Through strategije 
+prilikom upisa. Odloženi upis se omogućava uvođenjem koncepta vlasništva. Kada je procesor vlasnik nekog bloka, to znači da on 
+jedini ima ažurne vrednosti tog bloka u čitavom sistemu (dakle niti operativna memorija, niti keševi drugih procesora kod sebe 
+nemaju ažurne vrednosti tog bloka). Tada taj procesor ima kompletnu odgovornost za taj blok - ukoliko neki drugi procesor zatraži
+čitanje tog bloka, on ima odgovornost da mu ga dostavi. Takođe, ukoliko se dogodi zamena tog bloka, procesor je dužan da pre
+zamene uradi Flush, tj. da upiše taj blok u operativnu memoriju kako se ne bi trajno izgubile ažurne vrednosti.
+=========================================================================================================================
+MSI (Modified-Shared-Invalid)
+----------------------------------------
+6)
