@@ -47,9 +47,10 @@ toga se događa mnogo nepotrebnih pristupa operativnoj memoriji kod ovog protoko
 Ovu pojavu je moguće ublažiti koristeći Write-Back (odloženi upis u operativnu memoriju) umesto Write-Through strategije 
 prilikom upisa. Odloženi upis se omogućava uvođenjem koncepta vlasništva. Kada je procesor vlasnik nekog bloka, to znači da on 
 jedini ima ažurne vrednosti tog bloka u čitavom sistemu (dakle niti operativna memorija, niti keševi drugih procesora kod sebe 
-nemaju ažurne vrednosti tog bloka). Tada taj procesor ima kompletnu odgovornost za taj blok - ukoliko neki drugi procesor zatraži
-čitanje tog bloka, on ima odgovornost da mu ga dostavi. Takođe, ukoliko se dogodi zamena tog bloka, procesor je dužan da pre
-zamene uradi Flush, tj. da upiše taj blok u operativnu memoriju kako se ne bi trajno izgubile ažurne vrednosti.
+nemaju ažurne vrednosti tog bloka) - ukoliko taj procesor zatraži čitanje ili upis u taj blok, obe operacije će se izvršiti lokalno
+u njegovom kešu bez pristupa operativnoj memoriji. Tada taj procesor ima kompletnu odgovornost za taj blok - ukoliko neki drugi 
+procesor zatraži čitanje tog bloka, on treba da mu ga dostavi. Takođe, ukoliko se dogodi zamena tog bloka, procesor je 
+dužan da pre zamene uradi Flush, tj. da upiše taj blok u operativnu memoriju kako se ne bi trajno izgubile ažurne vrednosti.
 =========================================================================================================================
 MSI (Modified-Shared-Invalid)
 ----------------------------------------
