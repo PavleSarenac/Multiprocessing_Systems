@@ -55,3 +55,43 @@ dužan da pre zamene uradi Flush, tj. da upiše taj blok u operativnu memoriju k
 MSI (Modified-Shared-Invalid)
 ----------------------------------------
 6)
+U koracima 3 i 5 se upravo primećuje da se kod WTI protokola koristi Write-Through strategija, a kod MSI protokola Write-Back
+strategija pri upisu.
+
+7)
+Blok A0 u kešu procesora P1 će nakon koraka 3 preći iz stanja I u stanje M zato što je procesor P1 zatražio upis u ovaj blok, što 
+znači da će se upis (nakon dohvatanja bloka iz operativne memorije i poništavanja kopija ovog bloka u keševima drugih procesora) 
+obaviti lokalno u njegovom kešu i time će on postati vlasnik bloka - jedini će imati ažurne vrednosti bloka u čitavom sistemu.
+
+P1: I -- (PrWr/BusRdX) --> M
+
+8)
+Blok A0 u kešu procesora P0 će nakon koraka 4 preći iz stanja I u stanje S zato što je procesor P0 zatražio čitanje ovog bloka,
+što znači da će ovaj blok postati deljen između keševa procesora P0 i P1 (jer je u koraku 3 procesor P1 bio vlasnik ovog bloka, a
+sada će nakon koraka 4 i on preći u stanje S i pri tom ažurirati i operativnu memoriju). Procesor P0 može da pročita blok iz
+operativne memorije, a može i da mu ga dostavi preko magistrale procesor P1 prilikom obavljanja Flush operacije.
+
+P0: I -- (PrRd/BusRd) --> S
+
+9)
+U koraku 2 dolazi do ažuriranja bloka A0 u operativnoj memoriji zato što je procesor P2 zatražio ovaj blok za čitanje, a nema ga
+ni u svom kešu, niti može da ga pronađe u operativnoj memoriji pošto je nakon koraka 1 procesor P0 postao vlasnik bloka. Zato
+nakon koraka 2 procesor P0 mora da uradi Flush operaciju prilikom koje ažurira operativnu memoriju kako bi procesor P2 mogao
+da dohvati taj blok za čitanje. 
+
+P2: I -- (PrRd/BusRd) --> S
+
+Ovde se uočava mana MSI protokola - kada je neki blok u stanju M i neko drugi ga zatraži za čitanje, uvek se radi Flush, tj. 
+ažuriranje operativne memorije. Bilo bi bolje kada bi mogao samo da se uradi transfer bloka preko magistrale u ovoj situaciji
+i da se tako uopšte ne pristupa operativnoj memoriji, međutim tako bismo se našli u opasnoj situaciji jer bi u tom trenutku dati
+blok bio u stanju S u keševima dva procesora, pri čemu nijedan procesor očigledno onda ne bi bio vlasnik bloka, a u memoriji
+blok nije ažuran jer nije uradjen Flush. Sada, ako bi se dogodila zamena bloka u keševima oba procesora, trajno bismo izgubili
+ažurne vrednosti bloka jer niko nema odgovornost da u tom slučaju ažurira operativnu memoriju i time bi sistem ušao u 
+nekonzistentno stanje. Zato je kod MSI protokola neophodno da uvek memorija bude ažurna kada je blok u jednom ili više keševa 
+u stanju S. Sve isto važi i za MESI protokol. Ovaj problem je ublažen kod MOESI protokola uvođenjem stanja O koje ima 
+semantiku vlasništva i na taj način omogućava da više keševa deli isti blok a da memorija bude neažurna - tako se uspešno dodatno
+odlaže upis u operativnu memoriju i zato je MOESI protokol u ovoj konkretnoj situaciji superiorniji u odnosu na MSI i MESI
+protokole.
+=========================================================================================================================
+MESI (Modified-Exclusive-Shared-Invalid)
+------------------------------------------------------
