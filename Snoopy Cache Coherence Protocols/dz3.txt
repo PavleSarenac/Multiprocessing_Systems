@@ -230,7 +230,7 @@ P1: M -- (BusRd/Transfer) --> O
 Nakon koraka 10, operativna memorija će biti ažurirana kada procesor P1 uradi Flush bloka A2 jer je u njegovom kešu blok bio u 
 stanju O, pa je taj procesor zadužen da ažurira operativnu memoriju i prosledi blok onom procesoru koji ga je tražio, a to je ovde
 procesor P3. Međutim, onda će procesor P3 samo lokalno u svom kešu upisati u blok A2, bez ažuriranja operativne memorije, tako
-da na kraju posle koraka 10 operativna memorija ipak neće imati ažuran blok A2, već samo keš procesora P3 jer je on postao sada
+da na kraju posle koraka 10 operativna memorija neće imati ažuran blok A2, već samo keš procesora P3 jer je on postao sada
 njegov vlasnik.
 
 Akcija procesora P3:
@@ -239,3 +239,60 @@ P3: I -- (PrWr/BusRdX) --> M
 Reakcije drugih procesora:
 P0: S -- (BusRdX/--) --> I
 P1: O -- (BusRdX/Flush) --> I
+=========================================================================================================================
+Updating protocols
+=========================================================================================================================
+Dragon
+----------
+18)
+Nakon koraka 3, blok A0 u procesoru P1 će biti u stanju Sm, u procesoru P0 prelazi iz stanja Sm u stanje Sc, dok u procesoru
+P2 ostaje u stanju Sc kao što je i bio. Na Write-Miss procesora P1 reaguje procesor P0 prvo tako što će dostaviti procesoru
+P1 blok A0 preko magistrale, a zatim će procesori P0 i P2 ažurirati kod sebe blok A0 podatkom koji im prosledi procesor P1 isto 
+preko magistrale. Pre koraka 3, vrednost bloka A0 kod procesora P0 i P2 je 1, dok je nakon koraka 3 vrednost ovog bloka 2 u 
+procesorima P0, P1 i P2.
+
+Akcija procesora P1:
+P1: * -- (PrWrMiss/BusRd(S); BusUpd) --> Sm
+
+Reakcije ostalih procesora:
+P0: Sm -- (BusRd/Transfer) --> Sm
+P0: Sm -- (BusUpd/Update) --> Sc
+P2: Sc -- (BusRd/--) --> Sc
+P2: Sc -- (BusUpd/Update) --> Sc
+
+19)
+Nakon koraka 3 se ne ažurira operativna memorija. Kada procesor P1 upiše u blok A0 u koraku 3, kopije bloka A0 u procesorima P0 
+i P2 će biti ažurirane tako da će svi imati ažuran blok i to sve bez pristupa operativnoj memoriji. Kod poništavajućih protokola bi
+prvo procesor P0 uradio Flush čime bi ažurirao operativnu memoriju, a zatim bi blok A0 i kod procesora P0 i kod procesora P2
+prešao u nevalidno stanje, pa bi samo procesor P1 imao ažuran blok u čitavom sistemu. U ovoj situaciji vidimo suštinsku razliku
+između poništavajućih i ažurirajućih protokola - kod ažurirajućih protokola se pri svakom upisu u neki blok ažuriraju sve postojeće
+kopije tog bloka (ukoliko takve postoje) u svim procesorima tako da je on svuda uvek ažuran, što je upravo razlog zašto kod ovih 
+protokola ne postoji nevalidno stanje bloka (stanje I) kao kod poništavajućih protokola. Kod poništavajućih protokola bi se 
+postojeće kopije bloka u koji je upisano poništile (prešle bi u stanje I).
+
+20)
+Nakon koraka 5, blok A2 će u kešu procesora P1 biti u stanju M zato što je procesor P1 zatražio ovaj blok za upis i zato što
+nijedan od drugih procesora u svojim keševima nema kopiju ovog bloka (to je razlog što će biti u stanju M, a ne u stanju Sm). 
+
+Na osnovu posebne linije na magistrali (S) se zna da li postoji bar jedan procesor koji već ima dati blok u svom kešu, pa se na
+osnovu vrednosti na toj liniji odlučuje da li će se pri akciji PrWrMiss (promašaj pri upisu) preći u stanje M (ukoliko je na liniji S 
+vrednost 0) ili u stanje Sm (ukoliko je na liniji S vrednost 1).
+
+Upis procesora P1 u blok A2 će izazvati da se taj blok prvo učita u njegov keš, što znači da će on zameniti blok A0 koji se
+prethodno nalazio u kešu. Pošto je blok A0 bio u stanju Sm, što je stanje sa semantikom vlasništva, procesor P1 će uraditi Flush
+pri ovoj zameni kako se ne bi trajno izgubila ažurna vrednost bloka A0 (to bi potencijalno moglo da se dogodi kada bi došlo do
+zamene bloka A0 u svim ostalim keševima koji su u Sc stanju, a da nije pre toga upisan ažuran blok u operativnu memoriju).
+
+Akcija procesora P1:
+P1: * -- (PrWrMiss/BusRd(not S)) --> M
+
+Reakcije drugih procesora:
+Nema
+
+21)
+Nakon čitanja bloka A2 od strane procesora P1 u koraku 6, ovaj blok će ostati u stanju M zato što je u pitanju Read-Hit (pogodak
+pri čitanju) i to nikada nema nikakvih posledica po keš koherenciju.
+=========================================================================================================================
+Firefly
+---------
+22)
