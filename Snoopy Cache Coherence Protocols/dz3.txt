@@ -130,7 +130,6 @@ protokole.
 =========================================================================================================================
 MESI (Modified-Exclusive-Shared-Invalid)
 ------------------------------------------------------
-
 10)
 U koraku 2, kada procesor P2 zatraži blok A0 za čitanje, dostaviće mu ga procesor P0 direktno preko magistrale zato što je on
 nakon koraka 1 postao vlasnik tog bloka i zato će nakon koraka 2 uraditi Flush operaciju nakon koje će blok u njegovom kešu preći
@@ -254,7 +253,7 @@ procesorima P0, P1 i P2.
 Akcija procesora P1:
 P1: * -- (PrWrMiss/BusRd(S); BusUpd) --> Sm
 
-Reakcije ostalih procesora:
+Reakcije drugih procesora:
 P0: Sm -- (BusRd/Transfer) --> Sm
 P0: Sm -- (BusUpd/Update) --> Sc
 P2: Sc -- (BusRd/--) --> Sc
@@ -296,3 +295,44 @@ pri čitanju) i to nikada nema nikakvih posledica po keš koherenciju.
 Firefly
 ---------
 22)
+Blok A0 će u procesorima P0, P1 i P2 biti u stanju Sd (shared, not dirty) nakon koraka 3. Ovo stanje govori da više od jednog
+procesora ima u svom kešu kopiju bloka, pri čemu je operativna memorija ažurna. Ekvivalent ovom stanju u Dragon protokolu je
+Sc (shared, clean).
+
+Napomena: BusUpd je kod Dragon protokola ažurirao samo keševe procesora, dok kod Firefly protokola dodatno ažurira i
+operativnu memoriju.
+
+Akcija procesora P1:
+P1: * -- (PrWrMiss/BusRd(S); BusUpd) --> Sd
+
+Reakcije drugih procesora (pretpostavka: moguće je da identičan podatak više procesa stavi na magistralu istovremeno, pa tako
+procesori P0 i P2 mogu da odreaguju istovremeno transferom u ovoj situaciji):
+P0: BusRd/Transfer
+P0: BusUpd/Update
+P2: BusRd/Transfer
+P2: BusUpd/Update
+
+23)
+U koraku 5 se ne ažurira operativna memorija zato što nijedan drugi procesor u svom kešu nema blok A2, pa se neće generisati
+BusUpd signal jer nema ko da ažurira svoju kopiju bloka - samim tim neće biti ažurirana ni operativna memorija jer kod Firefly
+protokola upravo BusUpd signal izaziva i ažuriranje operativne memorije.
+
+Akcija procesora P1:
+P1: * -- (PrWrMiss/BusRd(not S)) --> sD
+
+Reakcije drugih procesora:
+Nema
+
+24)
+U koraku 8 procesor P0 traži blok A2 za čitanje, pri čemu promašuje u svom kešu i zato će mu procesor P1 dostaviti ovaj blok
+prilikom Flush operacije direktno preko magistrale.
+
+Akcija procesora P0:
+P0: * -- (PrRdMiss/BusRd(S)) --> Sd
+
+Reakcije drugih procesora:
+P1: sD -- (BusRd/Flush) --> Sd
+
+25)
+Nakon koraka 10, operativna memorija je ažurna što se tiče blokova A0 i A2. Blok A2 je u stanju Sd u keševima svih procesora
+kod kojih se on nalazi.
