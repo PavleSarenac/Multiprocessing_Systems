@@ -44,6 +44,11 @@ __device__ __host__ void divisor_count_and_sum(unsigned int n, unsigned int *pco
 
 __global__ void findArithmeticNumbersKernel(unsigned int *arithmetic_count_gpu, unsigned int *composite_count_gpu, int start, int number_of_iterations)
 {
+    __shared__ unsigned int counters[2];
+
+    counters[0] = 0;
+    counters[1] = 0;
+
     if (blockIdx.x * blockDim.x + threadIdx.x < number_of_iterations)
     {
         unsigned int divisor_count;
@@ -52,12 +57,20 @@ __global__ void findArithmeticNumbersKernel(unsigned int *arithmetic_count_gpu, 
         divisor_count_and_sum(myNumber, &divisor_count, &divisor_sum);
         if (divisor_sum % divisor_count == 0)
         {
-            atomicAdd(arithmetic_count_gpu, 1);
+            atomicAdd(&counters[0], 1);
             if (divisor_count > 2)
             {
-                atomicAdd(composite_count_gpu, 1);
+                atomicAdd(&counters[1], 1);
             }
         }
+    }
+
+    __syncthreads();
+
+    if (threadIdx.x == 0)
+    {
+        atomicAdd(arithmetic_count_gpu, counters[0]);
+        atomicAdd(composite_count_gpu, counters[1]);
     }
 }
 
@@ -107,16 +120,16 @@ Result *arithmeticNumbersGPU(char **argv)
     unsigned int start = 1;
     unsigned int number_of_iterations = 1;
 
+    // Dummy call - purpose is to set up CUDA environment here so that initialization overhead isn't included in profiling
+    // statistics of actual useful CUDA API calls.
+    cudaDeviceSynchronize();
+
     cudaEvent_t start_time = cudaEvent_t();
     cudaEvent_t end_time = cudaEvent_t();
     cudaEventCreate(&start_time);
     cudaEventCreate(&end_time);
 
     cudaEventRecord(start_time, 0);
-
-    // Dummy call - purpose is to set up CUDA environment here so that initialization overhead isn't included in profiling
-    // statistics of actual useful CUDA API calls.
-    cudaDeviceSynchronize();
 
     cudaMalloc(&arithmetic_count_gpu, sizeof(unsigned int));
     cudaMalloc(&composite_count_gpu, sizeof(unsigned int));
@@ -135,10 +148,11 @@ Result *arithmeticNumbersGPU(char **argv)
         findArithmeticNumbersKernel<<<gridDimension, blockDimension>>>(arithmetic_count_gpu, composite_count_gpu, start, number_of_iterations);
 
         cudaMemcpy(&arithmetic_count_cpu, arithmetic_count_gpu, sizeof(unsigned int), cudaMemcpyDeviceToHost);
-        cudaMemcpy(&composite_count_cpu, composite_count_gpu, sizeof(unsigned int), cudaMemcpyDeviceToHost);
 
         start += number_of_iterations;
     }
+
+    cudaMemcpy(&composite_count_cpu, composite_count_gpu, sizeof(unsigned int), cudaMemcpyDeviceToHost);
 
     cudaEventRecord(end_time, 0);
     cudaEventSynchronize(end_time);
