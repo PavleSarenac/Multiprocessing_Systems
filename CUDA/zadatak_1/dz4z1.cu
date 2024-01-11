@@ -42,12 +42,13 @@ __device__ __host__ void divisor_count_and_sum(unsigned int n, unsigned int *pco
     *psum = divisor_sum;
 }
 
-__global__ void findArithmeticNumbersKernel(unsigned int *arithmetic_count_gpu, unsigned int *composite_count_gpu, int start, int number_of_iterations)
+__global__ void findArithmeticNumbersKernel(unsigned int *arithmetic_count_array_gpu, unsigned int *composite_count_array_gpu, int start, int number_of_iterations)
 {
-    __shared__ unsigned int counters[2];
+    __shared__ unsigned int arithmeticNumbersCounters[NUMBER_OF_THREADS_PER_BLOCK];
+    __shared__ unsigned int compositeNumbersCounters[NUMBER_OF_THREADS_PER_BLOCK];
 
-    counters[0] = 0;
-    counters[1] = 0;
+    arithmeticNumbersCounters[threadIdx.x] = 0;
+    compositeNumbersCounters[threadIdx.x] = 0;
 
     if (blockIdx.x * blockDim.x + threadIdx.x < number_of_iterations)
     {
@@ -57,20 +58,30 @@ __global__ void findArithmeticNumbersKernel(unsigned int *arithmetic_count_gpu, 
         divisor_count_and_sum(myNumber, &divisor_count, &divisor_sum);
         if (divisor_sum % divisor_count == 0)
         {
-            atomicAdd(&counters[0], 1);
+            arithmeticNumbersCounters[threadIdx.x] = 1;
             if (divisor_count > 2)
             {
-                atomicAdd(&counters[1], 1);
+                compositeNumbersCounters[threadIdx.x] = 1;
             }
         }
     }
 
     __syncthreads();
 
+    for (int i = blockDim.x / 2; i > 0; i >>= 1)
+    {
+        if (threadIdx.x < i)
+        {
+            arithmeticNumbersCounters[threadIdx.x] += arithmeticNumbersCounters[threadIdx.x + i];
+            compositeNumbersCounters[threadIdx.x] += compositeNumbersCounters[threadIdx.x + i];
+        }
+        __syncthreads();
+    }
+
     if (threadIdx.x == 0)
     {
-        atomicAdd(arithmetic_count_gpu, counters[0]);
-        atomicAdd(composite_count_gpu, counters[1]);
+        arithmetic_count_array_gpu[blockIdx.x] = arithmeticNumbersCounters[0];
+        composite_count_array_gpu[blockIdx.x] = compositeNumbersCounters[0];
     }
 }
 
@@ -114,11 +125,14 @@ Result *arithmeticNumbersGPU(char **argv)
     Result *result = (Result *)malloc(sizeof(Result));
 
     int num = atoi(argv[1]);
-    unsigned int arithmetic_count_cpu = 0, *arithmetic_count_gpu;
-    unsigned int composite_count_cpu = 0, *composite_count_gpu;
+    unsigned int *arithmetic_count_array_cpu, *arithmetic_count_array_gpu;
+    unsigned int *composite_count_array_cpu, *composite_count_array_gpu;
+    unsigned int arithmetic_count = 0, composite_count = 0;
     unsigned int n = 1;
     unsigned int start = 1;
     unsigned int number_of_iterations = 1;
+    int counterArraysSize = ((num + 1 + NUMBER_OF_THREADS_PER_BLOCK - 1) / NUMBER_OF_THREADS_PER_BLOCK) *
+                            sizeof(unsigned int);
 
     // Dummy call - purpose is to set up CUDA environment here so that initialization overhead isn't included in profiling
     // statistics of actual useful CUDA API calls.
@@ -131,28 +145,41 @@ Result *arithmeticNumbersGPU(char **argv)
 
     cudaEventRecord(start_time, 0);
 
-    cudaMalloc(&arithmetic_count_gpu, sizeof(unsigned int));
-    cudaMalloc(&composite_count_gpu, sizeof(unsigned int));
+    arithmetic_count_array_cpu = (unsigned int *)malloc(counterArraysSize);
+    composite_count_array_cpu = (unsigned int *)malloc(counterArraysSize);
 
-    cudaMemset(arithmetic_count_gpu, 0, sizeof(unsigned int));
-    cudaMemset(composite_count_gpu, 0, sizeof(unsigned int));
+    cudaMalloc(&arithmetic_count_array_gpu, counterArraysSize);
+    cudaMalloc(&composite_count_array_gpu, counterArraysSize);
 
-    while (arithmetic_count_cpu <= num)
+    while (arithmetic_count <= num)
     {
-        number_of_iterations = num + 1 - arithmetic_count_cpu;
+        number_of_iterations = num + 1 - arithmetic_count;
         n += number_of_iterations;
 
-        dim3 gridDimension((number_of_iterations + NUMBER_OF_THREADS_PER_BLOCK - 1) / NUMBER_OF_THREADS_PER_BLOCK);
+        unsigned int numberOfBlocks = (number_of_iterations + NUMBER_OF_THREADS_PER_BLOCK - 1) / NUMBER_OF_THREADS_PER_BLOCK;
+
+        dim3 gridDimension(numberOfBlocks);
         dim3 blockDimension(NUMBER_OF_THREADS_PER_BLOCK);
 
-        findArithmeticNumbersKernel<<<gridDimension, blockDimension>>>(arithmetic_count_gpu, composite_count_gpu, start, number_of_iterations);
+        findArithmeticNumbersKernel<<<gridDimension, blockDimension>>>(arithmetic_count_array_gpu, composite_count_array_gpu, start, number_of_iterations);
 
-        cudaMemcpy(&arithmetic_count_cpu, arithmetic_count_gpu, sizeof(unsigned int), cudaMemcpyDeviceToHost);
+        cudaMemcpy(arithmetic_count_array_cpu, arithmetic_count_array_gpu, numberOfBlocks * sizeof(unsigned int), cudaMemcpyDeviceToHost);
+        cudaMemcpy(composite_count_array_cpu, composite_count_array_gpu, numberOfBlocks * sizeof(unsigned int), cudaMemcpyDeviceToHost);
+
+        for (int i = 0; i < numberOfBlocks; i++)
+        {
+            arithmetic_count += arithmetic_count_array_cpu[i];
+            composite_count += composite_count_array_cpu[i];
+        }
 
         start += number_of_iterations;
     }
 
-    cudaMemcpy(&composite_count_cpu, composite_count_gpu, sizeof(unsigned int), cudaMemcpyDeviceToHost);
+    cudaFree(arithmetic_count_array_gpu);
+    cudaFree(composite_count_array_gpu);
+
+    free(arithmetic_count_array_cpu);
+    free(composite_count_array_cpu);
 
     cudaEventRecord(end_time, 0);
     cudaEventSynchronize(end_time);
@@ -162,8 +189,8 @@ Result *arithmeticNumbersGPU(char **argv)
     cudaEventDestroy(start_time);
     cudaEventDestroy(end_time);
 
-    result->arithmetic_count = arithmetic_count_cpu;
-    result->composite_count = composite_count_cpu;
+    result->arithmetic_count = arithmetic_count;
+    result->composite_count = composite_count;
     result->n = n;
     result->execution_time = execution_time / 1000;
 
