@@ -1,0 +1,50 @@
+Sequential implementation execution time: 0.004241s
+Parallel implementation execution time: 0.095614s
+Test PASSED
+Sequential implementation execution time: 0.028559s
+Parallel implementation execution time: 0.085963s
+Test PASSED
+Sequential implementation execution time: 2.268099s
+Parallel implementation execution time: 1.052453s
+Test PASSED
+==========================================================================================================================
+Sequential implementation execution time: 0.001594s
+Parallel implementation execution time: 0.090286s
+Test PASSED
+Sequential implementation execution time: 0.027979s
+Parallel implementation execution time: 0.092688s
+Test PASSED
+Sequential implementation execution time: 2.198480s
+Parallel implementation execution time: 1.049847s
+Test PASSED
+==========================================================================================================================
+Sequential implementation execution time: 0.001560s
+Parallel implementation execution time: 0.091924s
+Test PASSED
+Sequential implementation execution time: 0.023863s
+Parallel implementation execution time: 0.082306s
+Test PASSED
+Sequential implementation execution time: 2.221706s
+Parallel implementation execution time: 1.059352s
+Test PASSED
+==========================================================================================================================
+Sequential implementation execution time: 0.001663s
+Parallel implementation execution time: 0.083705s
+Test PASSED
+Sequential implementation execution time: 0.031158s
+Parallel implementation execution time: 0.080946s
+Test PASSED
+Sequential implementation execution time: 2.086471s
+Parallel implementation execution time: 1.058303s
+Test PASSED
+==========================================================================================================================
+Sequential implementation execution time: 0.001628s
+Parallel implementation execution time: 0.069100s
+Test PASSED
+Sequential implementation execution time: 0.027133s
+Parallel implementation execution time: 0.080254s
+Test PASSED
+Sequential implementation execution time: 2.305843s
+Parallel implementation execution time: 1.053465s
+Test PASSED
+==========================================================================================================================
