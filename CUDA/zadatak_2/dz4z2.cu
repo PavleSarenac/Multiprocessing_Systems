@@ -4,7 +4,6 @@
 #include <time.h>
 
 #define ACCURACY 0.01
-#define NUMBER_OF_THREADS_PER_BLOCK 1024
 
 typedef struct Result
 {
