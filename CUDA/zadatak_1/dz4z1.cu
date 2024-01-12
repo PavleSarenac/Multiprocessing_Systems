@@ -138,12 +138,9 @@ Result *arithmeticNumbersGPU(char **argv)
     // statistics of actual useful CUDA API calls.
     cudaDeviceSynchronize();
 
-    cudaEvent_t start_time = cudaEvent_t();
-    cudaEvent_t end_time = cudaEvent_t();
-    cudaEventCreate(&start_time);
-    cudaEventCreate(&end_time);
+    struct timespec start_time, end_time;
 
-    cudaEventRecord(start_time, 0);
+    clock_gettime(CLOCK_MONOTONIC, &start_time);
 
     arithmetic_count_array_cpu = (unsigned int *)malloc(counterArraysSize);
     composite_count_array_cpu = (unsigned int *)malloc(counterArraysSize);
@@ -175,24 +172,18 @@ Result *arithmeticNumbersGPU(char **argv)
         start += number_of_iterations;
     }
 
+    clock_gettime(CLOCK_MONOTONIC, &end_time);
+
     cudaFree(arithmetic_count_array_gpu);
     cudaFree(composite_count_array_gpu);
 
     free(arithmetic_count_array_cpu);
     free(composite_count_array_cpu);
 
-    cudaEventRecord(end_time, 0);
-    cudaEventSynchronize(end_time);
-    float execution_time;
-    cudaEventElapsedTime(&execution_time, start_time, end_time);
-
-    cudaEventDestroy(start_time);
-    cudaEventDestroy(end_time);
-
     result->arithmetic_count = arithmetic_count;
     result->composite_count = composite_count;
     result->n = n;
-    result->execution_time = execution_time / 1000;
+    result->execution_time = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
 
     return result;
 }
