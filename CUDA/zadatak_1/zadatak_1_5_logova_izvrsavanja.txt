@@ -1,65 +1,65 @@
-Sequential implementation execution time: 0.000993s
-Parallel implementation execution time: 0.000238s
-Test PASSED
-Sequential implementation execution time: 0.008646s
-Parallel implementation execution time: 0.000401s
-Test PASSED
-Sequential implementation execution time: 0.177077s
-Parallel implementation execution time: 0.003296s
-Test PASSED
-Sequential implementation execution time: 4.214370s
-Parallel implementation execution time: 0.080544s
-Test PASSED
-=========================================================================================================================
-Sequential implementation execution time: 0.002860s
-Parallel implementation execution time: 0.000253s
-Test PASSED
-Sequential implementation execution time: 0.008366s
-Parallel implementation execution time: 0.000404s
-Test PASSED
-Sequential implementation execution time: 0.176766s
-Parallel implementation execution time: 0.003289s
-Test PASSED
-Sequential implementation execution time: 4.212673s
-Parallel implementation execution time: 0.081181s
-Test PASSED
-=========================================================================================================================
-Sequential implementation execution time: 0.001430s
+Sequential implementation execution time: 0.002882s
 Parallel implementation execution time: 0.000243s
 Test PASSED
-Sequential implementation execution time: 0.008521s
-Parallel implementation execution time: 0.000403s
+Sequential implementation execution time: 0.008618s
+Parallel implementation execution time: 0.000405s
 Test PASSED
-Sequential implementation execution time: 0.176914s
-Parallel implementation execution time: 0.003296s
+Sequential implementation execution time: 0.177049s
+Parallel implementation execution time: 0.003283s
 Test PASSED
-Sequential implementation execution time: 4.212083s
-Parallel implementation execution time: 0.080384s
-Test PASSED
-=========================================================================================================================
-Sequential implementation execution time: 0.000478s
-Parallel implementation execution time: 0.000238s
-Test PASSED
-Sequential implementation execution time: 0.008472s
-Parallel implementation execution time: 0.000464s
-Test PASSED
-Sequential implementation execution time: 0.173414s
-Parallel implementation execution time: 0.003286s
-Test PASSED
-Sequential implementation execution time: 4.136385s
-Parallel implementation execution time: 0.080578s
+Sequential implementation execution time: 4.133159s
+Parallel implementation execution time: 0.080925s
 Test PASSED
 =========================================================================================================================
-Sequential implementation execution time: 0.002934s
-Parallel implementation execution time: 0.000236s
+Sequential implementation execution time: 0.002873s
+Parallel implementation execution time: 0.000277s
 Test PASSED
-Sequential implementation execution time: 0.008472s
+Sequential implementation execution time: 0.008380s
+Parallel implementation execution time: 0.000409s
+Test PASSED
+Sequential implementation execution time: 0.174393s
+Parallel implementation execution time: 0.003294s
+Test PASSED
+Sequential implementation execution time: 4.139744s
+Parallel implementation execution time: 0.080726s
+Test PASSED
+=========================================================================================================================
+Sequential implementation execution time: 0.000498s
+Parallel implementation execution time: 0.000232s
+Test PASSED
+Sequential implementation execution time: 0.008583s
 Parallel implementation execution time: 0.000402s
 Test PASSED
-Sequential implementation execution time: 0.173779s
-Parallel implementation execution time: 0.003289s
+Sequential implementation execution time: 0.173712s
+Parallel implementation execution time: 0.003288s
 Test PASSED
-Sequential implementation execution time: 4.212812s
-Parallel implementation execution time: 0.080754s
+Sequential implementation execution time: 4.216144s
+Parallel implementation execution time: 0.080767s
+Test PASSED
+=========================================================================================================================
+Sequential implementation execution time: 0.000477s
+Parallel implementation execution time: 0.000251s
+Test PASSED
+Sequential implementation execution time: 0.008504s
+Parallel implementation execution time: 0.000407s
+Test PASSED
+Sequential implementation execution time: 0.177112s
+Parallel implementation execution time: 0.003295s
+Test PASSED
+Sequential implementation execution time: 4.213143s
+Parallel implementation execution time: 0.080365s
+Test PASSED
+=========================================================================================================================
+Sequential implementation execution time: 0.000483s
+Parallel implementation execution time: 0.000247s
+Test PASSED
+Sequential implementation execution time: 0.008405s
+Parallel implementation execution time: 0.000428s
+Test PASSED
+Sequential implementation execution time: 0.176858s
+Parallel implementation execution time: 0.003290s
+Test PASSED
+Sequential implementation execution time: 4.214952s
+Parallel implementation execution time: 0.082035s
 Test PASSED
 =========================================================================================================================
