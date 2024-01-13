@@ -204,7 +204,7 @@ __host__ Result *nbodyMainGPU(char **argv, float *buf)
     for (int iter = 0; iter < nIters; iter++)
     {
         bodyForceKernel<<<gridDimension, blockDimension, sharedMemorySize>>>(buf_gpu, nBodies, dt);
-        cudaMemcpy(buf, buf_gpu, nBodies * 6 * sizeof(float), cudaMemcpyDeviceToHost);
+        cudaMemcpy(buf + 3 * nBodies, buf_gpu + 3 * nBodies, nBodies * 3 * sizeof(float), cudaMemcpyDeviceToHost);
 
         saveToCSV(buf, nBodies, iter, folder);
 
