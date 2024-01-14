@@ -59,6 +59,7 @@ __global__ void bodyForceKernel(float *buf_gpu, int nBodies, float dt)
     extern __shared__ float sharedMemory[];
     float *allPositions = sharedMemory;
     float *velocities = allPositions + nBodies * 3;
+    int globalThreadId = blockIdx.x * blockDim.x + threadIdx.x;
 
     // Loading allPositions from global memory into shared memory.
     int positionsChunkSize = (nBodies * 3 + NUMBER_OF_THREADS_PER_BLOCK - 1) / NUMBER_OF_THREADS_PER_BLOCK;
@@ -77,8 +78,6 @@ __global__ void bodyForceKernel(float *buf_gpu, int nBodies, float dt)
     {
         allPositions[i] = buf_gpu[i];
     }
-
-    int globalThreadId = blockIdx.x * blockDim.x + threadIdx.x;
 
     // Loading velocities from global memory into shared memory.
     // Load vx.
@@ -115,9 +114,12 @@ __global__ void bodyForceKernel(float *buf_gpu, int nBodies, float dt)
 
     __syncthreads();
 
-    buf_gpu[nBodies * 3 + globalThreadId] = velocities[threadIdx.x];
-    buf_gpu[nBodies * 4 + globalThreadId] = velocities[NUMBER_OF_THREADS_PER_BLOCK + threadIdx.x];
-    buf_gpu[nBodies * 5 + globalThreadId] = velocities[2 * NUMBER_OF_THREADS_PER_BLOCK + threadIdx.x];
+    if (globalThreadId < nBodies)
+    {
+        buf_gpu[nBodies * 3 + globalThreadId] = velocities[threadIdx.x];
+        buf_gpu[nBodies * 4 + globalThreadId] = velocities[NUMBER_OF_THREADS_PER_BLOCK + threadIdx.x];
+        buf_gpu[nBodies * 5 + globalThreadId] = velocities[2 * NUMBER_OF_THREADS_PER_BLOCK + threadIdx.x];
+    }
 }
 
 __host__ void saveToCSV(float *buf, int n, int iter, const char *folder)
@@ -259,8 +261,8 @@ int main(int argc, char **argv)
         }
     }
 
-    sequential_result = nbodyMainCPU(argv, copies[0]);
     parallel_result = nbodyMainGPU(argv, copies[1]);
+    sequential_result = nbodyMainCPU(argv, copies[0]);
 
     printf("Sequential implementation execution time: %fs\n", sequential_result->execution_time);
     printf("Parallel implementation execution time: %fs\n", parallel_result->execution_time);
