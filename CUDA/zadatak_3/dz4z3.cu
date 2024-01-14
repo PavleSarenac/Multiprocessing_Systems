@@ -112,10 +112,9 @@ __global__ void bodyForceKernel(float *buf_gpu, int nBodies, float dt)
     velocities[NUMBER_OF_THREADS_PER_BLOCK + threadIdx.x] += dt * Fy;
     velocities[2 * NUMBER_OF_THREADS_PER_BLOCK + threadIdx.x] += dt * Fz;
 
-    __syncthreads();
-
     if (globalThreadId < nBodies)
     {
+        // Update velocities.
         buf_gpu[nBodies * 3 + globalThreadId] = velocities[threadIdx.x];
         buf_gpu[nBodies * 4 + globalThreadId] = velocities[NUMBER_OF_THREADS_PER_BLOCK + threadIdx.x];
         buf_gpu[nBodies * 5 + globalThreadId] = velocities[2 * NUMBER_OF_THREADS_PER_BLOCK + threadIdx.x];
